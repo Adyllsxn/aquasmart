@@ -4,3 +4,6 @@ global using KwanzaSmart.Client;
 global using Blazorise;
 global using Blazorise.Tailwind;
 global using Blazorise.Icons.FontAwesome;
+global using KwanzaSmart.Client.Lib.DTOs;
+global using Microsoft.AspNetCore.SignalR.Client;
+global using KwanzaSmart.Client.Lib.Services;
