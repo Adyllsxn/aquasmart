@@ -1,0 +1,32 @@
+# .NET build artifacts
+bin/
+obj/
+*.user
+*.suo
+*.userosscache
+
+# IDE
+.vscode/
+.idea/
+
+# Git
+.git/
+.gitignore
+
+# Docker
+Dockerfile
+.dockerignore
+nginx.conf
+
+# Node modules
+node_modules/
+package-lock.json
+
+# Environment
+.env*
+*.log
+
+# PWA workbox
+sw.js
+workbox-*.js
+service-worker*.js
