@@ -1,7 +1,5 @@
 <div align="center">
   <img src="./docs/_logo.svg" alt="KwanzaSmart Logo" width="40%" />
-
-  **Sistema inteligente de monitorização de aquicultura**
   
   [![GitHub](https://img.shields.io/badge/github-aquasmart-181717?style=for-the-badge&logo=github)](https://github.com/Adyllsxn/aquasmart)
   [![Site](https://img.shields.io/badge/demo-site-4c1?style=for-the-badge&logo=githubpages&logoColor=white)](https://adyllsxn.github.io/aquasmart/)
