@@ -1,0 +1,40 @@
+# .NET build artifacts
+bin/
+obj/
+*.user
+*.suo
+*.userosscache
+*.vs
+
+# IDE
+.vscode/
+.idea/
+
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# Docker
+Dockerfile
+.dockerignore
+
+# Environment
+.env
+.env.*
+*.log
+
+# Tests
+**/Tests/
+**/TestResults/
+
+# Publish
+/publish/
+
+# Node modules (if any)
+node_modules/
+
+# Secrets
+**/appsettings.Development.json
+**/appsettings.Local.json
+*secrets*.json
