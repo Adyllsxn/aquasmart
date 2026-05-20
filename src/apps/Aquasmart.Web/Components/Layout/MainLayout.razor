@@ -1,3 +1,25 @@
 ﻿@inherits LayoutComponentBase
-@Body
 
+<div class="min-h-screen bg-gray-950">
+    <div class="flex">
+        <Sidebar IsCollapsed="_sidebarCollapsed" OnToggle="ToggleSidebar" />
+
+        <div id="main-content" style="@($"transition: margin-left 0.3s ease; margin-left: {(_sidebarCollapsed ? "80px" : "256px")}; flex: 1; display: flex; flex-direction: column; height: 100vh; overflow-y: auto;")">
+            <main class="p-6">
+                <div class="mx-auto">
+                    @Body
+                </div>
+            </main>
+        </div>
+    </div>
+</div>
+
+@code {
+    private bool _sidebarCollapsed = false;
+    
+    private void ToggleSidebar()
+    {
+        _sidebarCollapsed = !_sidebarCollapsed;
+        StateHasChanged();
+    }
+}

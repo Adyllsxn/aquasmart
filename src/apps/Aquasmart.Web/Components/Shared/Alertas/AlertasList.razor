@@ -1,0 +1,121 @@
+<div class="space-y-3">
+    <!-- Alerta Vermelho (Crítico) -->
+    <div class="bg-gradient-to-br from-gray-900/80 to-gray-900/40 rounded-2xl p-4 border-l-4 border-red-500 hover:bg-red-500/5 transition-all duration-300 cursor-pointer">
+        <div class="flex items-start justify-between">
+            <div class="flex items-start gap-3">
+                <div class="w-10 h-10 rounded-xl bg-red-500/10 flex items-center justify-center">
+                    <i class="fa-solid fa-temperature-high text-red-400 text-lg"></i>
+                </div>
+                <div>
+                    <div class="flex items-center gap-2 mb-1">
+                        <span class="text-red-400 text-sm font-semibold">⚠️ Temperatura elevada</span>
+                        <span class="text-[10px] bg-red-500/20 text-red-400 px-2 py-0.5 rounded-full">Crítico</span>
+                        <span class="text-[10px] text-gray-500">Não lido</span>
+                    </div>
+                    <p class="text-gray-300 text-sm">A temperatura da água atingiu 32°C, acima do limite recomendado de 28°C.</p>
+                    <div class="flex items-center gap-3 mt-2">
+                        <span class="text-gray-500 text-xs flex items-center gap-1">
+                            <i class="fa-regular fa-clock"></i> Há 2 minutos
+                        </span>
+                        <span class="text-gray-500 text-xs flex items-center gap-1">
+                            <i class="fa-regular fa-flask"></i> Sensor #1
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <button class="text-gray-500 hover:text-green-400 transition-colors">
+                <i class="fa-regular fa-circle-check text-lg"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Alerta Amarelo (Atenção) -->
+    <div class="bg-gradient-to-br from-gray-900/80 to-gray-900/40 rounded-2xl p-4 border-l-4 border-yellow-500 hover:bg-yellow-500/5 transition-all duration-300 cursor-pointer">
+        <div class="flex items-start justify-between">
+            <div class="flex items-start gap-3">
+                <div class="w-10 h-10 rounded-xl bg-yellow-500/10 flex items-center justify-center">
+                    <i class="fa-solid fa-wind text-yellow-400 text-lg"></i>
+                </div>
+                <div>
+                    <div class="flex items-center gap-2 mb-1">
+                        <span class="text-yellow-400 text-sm font-semibold">⚠️ Oxigénio baixo</span>
+                        <span class="text-[10px] bg-yellow-500/20 text-yellow-400 px-2 py-0.5 rounded-full">Atenção</span>
+                        <span class="text-[10px] text-gray-500">Não lido</span>
+                    </div>
+                    <p class="text-gray-300 text-sm">O nível de oxigénio dissolvido está em 4.8 mg/L. O mínimo recomendado é 5.0 mg/L.</p>
+                    <div class="flex items-center gap-3 mt-2">
+                        <span class="text-gray-500 text-xs flex items-center gap-1">
+                            <i class="fa-regular fa-clock"></i> Há 5 minutos
+                        </span>
+                        <span class="text-gray-500 text-xs flex items-center gap-1">
+                            <i class="fa-regular fa-flask"></i> Sensor #3
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <button class="text-gray-500 hover:text-green-400 transition-colors">
+                <i class="fa-regular fa-circle-check text-lg"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Alerta Verde (Resolvido/Lido) -->
+    <div class="bg-gradient-to-br from-gray-900/80 to-gray-900/40 rounded-2xl p-4 border-l-4 border-green-500 opacity-70">
+        <div class="flex items-start justify-between">
+            <div class="flex items-start gap-3">
+                <div class="w-10 h-10 rounded-xl bg-green-500/10 flex items-center justify-center">
+                    <i class="fa-solid fa-circle-check text-green-400 text-lg"></i>
+                </div>
+                <div>
+                    <div class="flex items-center gap-2 mb-1">
+                        <span class="text-green-400 text-sm font-semibold">✓ Temperatura normalizada</span>
+                        <span class="text-[10px] bg-green-500/20 text-green-400 px-2 py-0.5 rounded-full">Resolvido</span>
+                        <span class="text-[10px] text-gray-500">Lido</span>
+                    </div>
+                    <p class="text-gray-400 text-sm">A temperatura voltou aos níveis normais (26.5°C).</p>
+                    <div class="flex items-center gap-3 mt-2">
+                        <span class="text-gray-500 text-xs flex items-center gap-1">
+                            <i class="fa-regular fa-clock"></i> Há 10 minutos
+                        </span>
+                        <span class="text-gray-500 text-xs flex items-center gap-1">
+                            <i class="fa-regular fa-flask"></i> Sensor #1
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <button class="text-green-400 transition-colors" disabled>
+                <i class="fa-solid fa-circle-check text-lg"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Alerta Vermelho (Nível baixo) -->
+    <div class="bg-gradient-to-br from-gray-900/80 to-gray-900/40 rounded-2xl p-4 border-l-4 border-red-500 hover:bg-red-500/5 transition-all duration-300 cursor-pointer">
+        <div class="flex items-start justify-between">
+            <div class="flex items-start gap-3">
+                <div class="w-10 h-10 rounded-xl bg-red-500/10 flex items-center justify-center">
+                    <i class="fa-solid fa-water text-red-400 text-lg"></i>
+                </div>
+                <div>
+                    <div class="flex items-center gap-2 mb-1">
+                        <span class="text-red-400 text-sm font-semibold">⚠️ Nível da água baixo</span>
+                        <span class="text-[10px] bg-red-500/20 text-red-400 px-2 py-0.5 rounded-full">Crítico</span>
+                        <span class="text-[10px] text-gray-500">Não lido</span>
+                    </div>
+                    <p class="text-gray-300 text-sm">O nível da água está em 28%, abaixo do mínimo recomendado de 50%.</p>
+                    <div class="flex items-center gap-3 mt-2">
+                        <span class="text-gray-500 text-xs flex items-center gap-1">
+                            <i class="fa-regular fa-clock"></i> Há 15 minutos
+                        </span>
+                        <span class="text-gray-500 text-xs flex items-center gap-1">
+                            <i class="fa-regular fa-flask"></i> Sensor #4
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <button class="text-gray-500 hover:text-green-400 transition-colors">
+                <i class="fa-regular fa-circle-check text-lg"></i>
+            </button>
+        </div>
+    </div>
+</div>

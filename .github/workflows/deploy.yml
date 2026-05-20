@@ -25,7 +25,7 @@ jobs:
         run: dotnet --version
 
       - name: Publish Project
-        run: dotnet publish apps/KwanzaSmart.Client/KwanzaSmart.Client.csproj -c Release -o release
+        run: dotnet publish src/apps/Aquasmart.Web/Aquasmart.Web.csproj -c Release -o release
 
       - name: Add .nojekyll
         run: touch release/wwwroot/.nojekyll

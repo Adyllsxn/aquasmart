@@ -1,0 +1,96 @@
+<div class="bg-gradient-to-br from-gray-900/80 to-gray-900/40 rounded-3xl p-5 border border-gray-700">
+    <div class="flex justify-between items-center mb-4">
+        <h3 class="font-semibold text-white flex items-center gap-2">
+            <div class="w-1 h-6 bg-blue-500 rounded-full"></div>
+            <i class="fa-solid fa-table-list text-blue-500"></i>
+            Registos de Leituras
+        </h3>
+        <div class="flex items-center gap-2">
+            <span class="text-gray-500 text-xs">Mostrar:</span>
+            <select class="bg-gray-800 border border-gray-700 rounded-lg px-3 py-1 text-white text-xs">
+                <option>10</option>
+                <option>25</option>
+                <option>50</option>
+                <option>100</option>
+            </select>
+        </div>
+    </div>
+    <div class="overflow-x-auto">
+        <table class="w-full text-left">
+            <thead class="text-gray-500 text-xs uppercase border-b border-gray-700">
+                <tr>
+                    <th class="pb-3 font-medium px-3">Data/Hora</th>
+                    <th class="pb-3 font-medium px-3">🌡️ Temperatura</th>
+                    <th class="pb-3 font-medium px-3">🧪 pH</th>
+                    <th class="pb-3 font-medium px-3">💨 Oxigénio</th>
+                    <th class="pb-3 font-medium px-3">💧 Nível</th>
+                    <th class="pb-3 font-medium px-3">Status</th>
+                </tr>
+            </thead>
+            <tbody class="text-gray-300 text-sm divide-y divide-gray-800">
+                <tr class="hover:bg-gray-800/30 transition-colors">
+                    <td class="py-3 px-3">03/05/2026 16:20</td>
+                    <td class="py-3 px-3"><span class="text-white font-medium">28.5°C</span></td>
+                    <td class="py-3 px-3">7.2</td>
+                    <td class="py-3 px-3">6.2 mg/L</td>
+                    <td class="py-3 px-3">65%</td>
+                    <td class="py-3 px-3"><span class="text-green-400 text-xs">Normal</span></td>
+                </tr>
+                <tr class="hover:bg-gray-800/30 transition-colors">
+                    <td class="py-3 px-3">03/05/2026 15:50</td>
+                    <td class="py-3 px-3"><span class="text-white font-medium">28.1°C</span></td>
+                    <td class="py-3 px-3">7.1</td>
+                    <td class="py-3 px-3">6.5 mg/L</td>
+                    <td class="py-3 px-3">67%</td>
+                    <td class="py-3 px-3"><span class="text-green-400 text-xs">Normal</span></td>
+                </tr>
+                <tr class="hover:bg-gray-800/30 transition-colors">
+                    <td class="py-3 px-3">03/05/2026 15:20</td>
+                    <td class="py-3 px-3"><span class="text-white font-medium">29.2°C</span></td>
+                    <td class="py-3 px-3">7.3</td>
+                    <td class="py-3 px-3">5.8 mg/L</td>
+                    <td class="py-3 px-3">64%</td>
+                    <td class="py-3 px-3"><span class="text-yellow-400 text-xs">Atenção</span></td>
+                </tr>
+                <tr class="hover:bg-gray-800/30 transition-colors">
+                    <td class="py-3 px-3">03/05/2026 14:50</td>
+                    <td class="py-3 px-3"><span class="text-white font-medium">27.8°C</span></td>
+                    <td class="py-3 px-3">7.0</td>
+                    <td class="py-3 px-3">6.8 mg/L</td>
+                    <td class="py-3 px-3">68%</td>
+                    <td class="py-3 px-3"><span class="text-green-400 text-xs">Normal</span></td>
+                </tr>
+                <tr class="hover:bg-gray-800/30 transition-colors">
+                    <td class="py-3 px-3">03/05/2026 14:20</td>
+                    <td class="py-3 px-3"><span class="text-white font-medium">30.5°C</span></td>
+                    <td class="py-3 px-3">7.4</td>
+                    <td class="py-3 px-3">5.2 mg/L</td>
+                    <td class="py-3 px-3">62%</td>
+                    <td class="py-3 px-3"><span class="text-red-400 text-xs">Crítico</span></td>
+                </tr>
+                <tr class="hover:bg-gray-800/30 transition-colors">
+                    <td class="py-3 px-3">03/05/2026 13:50</td>
+                    <td class="py-3 px-3"><span class="text-white font-medium">27.5°C</span></td>
+                    <td class="py-3 px-3">6.9</td>
+                    <td class="py-3 px-3">7.0 mg/L</td>
+                    <td class="py-3 px-3">70%</td>
+                    <td class="py-3 px-3"><span class="text-green-400 text-xs">Normal</span></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    
+    <!-- Paginação -->
+    <div class="flex items-center justify-between mt-4 pt-3 border-t border-gray-800">
+        <span class="text-gray-500 text-xs">Mostrando 1-6 de 1.247 registos</span>
+        <div class="flex gap-1">
+            <button class="bg-gray-800 hover:bg-gray-700 text-gray-400 rounded-lg px-3 py-1 text-xs transition-all">«</button>
+            <button class="bg-blue-600 text-white rounded-lg px-3 py-1 text-xs transition-all">1</button>
+            <button class="bg-gray-800 hover:bg-gray-700 text-gray-400 rounded-lg px-3 py-1 text-xs transition-all">2</button>
+            <button class="bg-gray-800 hover:bg-gray-700 text-gray-400 rounded-lg px-3 py-1 text-xs transition-all">3</button>
+            <button class="bg-gray-800 hover:bg-gray-700 text-gray-400 rounded-lg px-3 py-1 text-xs transition-all">4</button>
+            <button class="bg-gray-800 hover:bg-gray-700 text-gray-400 rounded-lg px-3 py-1 text-xs transition-all">5</button>
+            <button class="bg-gray-800 hover:bg-gray-700 text-gray-400 rounded-lg px-3 py-1 text-xs transition-all">»</button>
+        </div>
+    </div>
+</div>
