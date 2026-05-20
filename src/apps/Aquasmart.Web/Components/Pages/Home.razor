@@ -1,8 +1,14 @@
 ﻿@page "/"
 @page "/aquasmart/"
 
-<PageTitle>Home</PageTitle>
-
-<h1 class="text-blue-500">Hello, world!</h1>
-
-Welcome to your new app.
+<div class="space-y-6">
+    <Header />
+    <SensorCards />
+    
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <ChartSection />
+        <AlertsSection />
+    </div>
+    
+    <LatestReadingsTable />
+</div>
