@@ -1,55 +1,204 @@
-<div class="bg-gradient-to-br from-gray-900/80 to-gray-900/40 rounded-3xl p-5 border border-gray-700">
-    <div class="flex justify-between items-center mb-4">
+<div class="bg-gradient-to-br from-gray-900 to-gray-950 rounded-2xl p-5 border border-gray-800">
+    
+    <!-- CABEÇALHO -->
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
         <h3 class="font-semibold text-white flex items-center gap-2">
             <div class="w-1 h-6 bg-blue-500 rounded-full"></div>
             <i class="fa-solid fa-table-list text-blue-500"></i>
             Últimas Leituras
         </h3>
-        <button class="text-blue-400 text-sm hover:text-blue-300 transition-colors flex items-center gap-1">
-            Ver todas <i class="fa-solid fa-arrow-right text-xs"></i>
-        </button>
+        
+        <div class="flex items-center gap-2">
+            <!-- Filtro rápido -->
+            <div class="flex items-center gap-1 bg-gray-800/50 rounded-lg p-1">
+                <button class="px-3 py-1 text-xs rounded-md text-blue-400 bg-blue-500/20">Hoje</button>
+                <button class="px-3 py-1 text-xs text-gray-500 hover:text-gray-300 transition-colors">Semana</button>
+                <button class="px-3 py-1 text-xs text-gray-500 hover:text-gray-300 transition-colors">Mês</button>
+            </div>
+            
+            <button class="text-blue-400 text-sm hover:text-blue-300 transition-colors flex items-center gap-1">
+                Ver todas <i class="fa-solid fa-arrow-right text-xs"></i>
+            </button>
+        </div>
     </div>
+    
+    <!-- TABELA RESPONSIVA -->
     <div class="overflow-x-auto">
         <table class="w-full text-left">
-            <thead class="text-gray-500 text-xs uppercase border-b border-gray-700">
-                <tr>
-                    <th class="pb-3 font-medium px-3">Data/Hora</th>
-                    <th class="pb-3 font-medium px-3">🌡️ Temperatura</th>
-                    <th class="pb-3 font-medium px-3">🧪 pH</th>
-                    <th class="pb-3 font-medium px-3">💨 Oxigénio</th>
-                    <th class="pb-3 font-medium px-3">💧 Nível</th>
+            <thead>
+                <tr class="text-gray-500 text-xs uppercase border-b border-gray-800">
+                    <th class="pb-3 px-3 font-medium">Data/Hora</th>
+                    <th class="pb-3 px-3 font-medium">🌡️ Temperatura</th>
+                    <th class="pb-3 px-3 font-medium">🧪 pH</th>
+                    <th class="pb-3 px-3 font-medium">💨 Oxigénio</th>
+                    <th class="pb-3 px-3 font-medium">💧 Nível</th>
+                    <th class="pb-3 px-3 font-medium text-center">Status</th>
                 </tr>
             </thead>
-            <tbody class="text-gray-300 text-sm divide-y divide-gray-800">
-                <tr class="hover:bg-gray-800/30 transition-colors">
-                    <td class="py-3 px-3">Hoje, 16:20</td>
-                    <td class="py-3 px-3"><span class="text-white font-medium">28.5°C</span></td>
-                    <td class="py-3 px-3">7.2</td>
-                    <td class="py-3 px-3">6.2 mg/L</td>
-                    <td class="py-3 px-3">65%</td>
+            <tbody class="text-gray-300 text-sm divide-y divide-gray-800/50">
+                <tr class="hover:bg-gray-800/30 transition-colors duration-200 group">
+                    <td class="py-3 px-3">
+                        <div class="flex items-center gap-2">
+                            <i class="fa-regular fa-calendar text-gray-600 text-xs"></i>
+                            <span>Hoje, 16:20</span>
+                        </div>
+                    </td>
+                    <td class="py-3 px-3">
+                        <span class="text-white font-medium">28.5°C</span>
+                        <span class="text-green-400 text-[10px] ml-1">▲ +0.4</span>
+                    </td>
+                    <td class="py-3 px-3">
+                        <span>7.2</span>
+                        <div class="inline-block ml-2 w-12 h-1 bg-gray-700 rounded-full overflow-hidden">
+                            <div class="h-full bg-purple-500 rounded-full" style="width: 70%"></div>
+                        </div>
+                    </td>
+                    <td class="py-3 px-3">
+                        <span class="text-yellow-400">6.2 mg/L</span>
+                        <span class="text-red-400 text-[10px] ml-1">▼ -0.3</span>
+                    </td>
+                    <td class="py-3 px-3">
+                        <div class="flex items-center gap-2">
+                            <span>65%</span>
+                            <div class="w-16 h-1 bg-gray-700 rounded-full overflow-hidden">
+                                <div class="h-full bg-cyan-500 rounded-full" style="width: 65%"></div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="py-3 px-3 text-center">
+                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-green-500/10 text-green-400">
+                            <i class="fa-solid fa-circle text-[6px]"></i> Normal
+                        </span>
+                    </td>
                 </tr>
-                <tr class="hover:bg-gray-800/30 transition-colors">
-                    <td class="py-3 px-3">Hoje, 15:50</td>
-                    <td class="py-3 px-3"><span class="text-white font-medium">28.1°C</span></td>
-                    <td class="py-3 px-3">7.1</td>
-                    <td class="py-3 px-3">6.5 mg/L</td>
-                    <td class="py-3 px-3">67%</td>
+                
+                <tr class="hover:bg-gray-800/30 transition-colors duration-200 group">
+                    <td class="py-3 px-3">
+                        <div class="flex items-center gap-2">
+                            <i class="fa-regular fa-calendar text-gray-600 text-xs"></i>
+                            <span>Hoje, 15:50</span>
+                        </div>
+                    </td>
+                    <td class="py-3 px-3">
+                        <span class="text-white font-medium">28.1°C</span>
+                        <span class="text-green-400 text-[10px] ml-1">▲ +0.2</span>
+                    </td>
+                    <td class="py-3 px-3">
+                        <span>7.1</span>
+                        <div class="inline-block ml-2 w-12 h-1 bg-gray-700 rounded-full overflow-hidden">
+                            <div class="h-full bg-purple-500 rounded-full" style="width: 68%"></div>
+                        </div>
+                    </td>
+                    <td class="py-3 px-3">
+                        <span>6.5 mg/L</span>
+                        <span class="text-green-400 text-[10px] ml-1">▲ +0.2</span>
+                    </td>
+                    <td class="py-3 px-3">
+                        <div class="flex items-center gap-2">
+                            <span>67%</span>
+                            <div class="w-16 h-1 bg-gray-700 rounded-full overflow-hidden">
+                                <div class="h-full bg-cyan-500 rounded-full" style="width: 67%"></div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="py-3 px-3 text-center">
+                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-green-500/10 text-green-400">
+                            <i class="fa-solid fa-circle text-[6px]"></i> Normal
+                        </span>
+                    </td>
                 </tr>
-                <tr class="hover:bg-gray-800/30 transition-colors">
-                    <td class="py-3 px-3">Hoje, 15:20</td>
-                    <td class="py-3 px-3"><span class="text-white font-medium">29.2°C</span></td>
-                    <td class="py-3 px-3">7.3</td>
-                    <td class="py-3 px-3">5.8 mg/L</td>
-                    <td class="py-3 px-3">64%</td>
+                
+                <tr class="hover:bg-gray-800/30 transition-colors duration-200 group">
+                    <td class="py-3 px-3">
+                        <div class="flex items-center gap-2">
+                            <i class="fa-regular fa-calendar text-gray-600 text-xs"></i>
+                            <span>Hoje, 15:20</span>
+                        </div>
+                    </td>
+                    <td class="py-3 px-3">
+                        <span class="text-white font-medium">29.2°C</span>
+                        <span class="text-red-400 text-[10px] ml-1">▲ +1.1</span>
+                    </td>
+                    <td class="py-3 px-3">
+                        <span>7.3</span>
+                        <div class="inline-block ml-2 w-12 h-1 bg-gray-700 rounded-full overflow-hidden">
+                            <div class="h-full bg-purple-500 rounded-full" style="width: 75%"></div>
+                        </div>
+                    </td>
+                    <td class="py-3 px-3">
+                        <span class="text-yellow-400">5.8 mg/L</span>
+                        <span class="text-red-400 text-[10px] ml-1">▼ -0.5</span>
+                    </td>
+                    <td class="py-3 px-3">
+                        <div class="flex items-center gap-2">
+                            <span>64%</span>
+                            <div class="w-16 h-1 bg-gray-700 rounded-full overflow-hidden">
+                                <div class="h-full bg-cyan-500 rounded-full" style="width: 64%"></div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="py-3 px-3 text-center">
+                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-yellow-500/10 text-yellow-400">
+                            <i class="fa-solid fa-circle text-[6px]"></i> Atenção
+                        </span>
+                    </td>
                 </tr>
-                <tr class="hover:bg-gray-800/30 transition-colors">
-                    <td class="py-3 px-3">Hoje, 14:50</td>
-                    <td class="py-3 px-3"><span class="text-white font-medium">27.8°C</span></td>
-                    <td class="py-3 px-3">7.0</td>
-                    <td class="py-3 px-3">6.8 mg/L</td>
-                    <td class="py-3 px-3">68%</td>
+                
+                <tr class="hover:bg-gray-800/30 transition-colors duration-200 group">
+                    <td class="py-3 px-3">
+                        <div class="flex items-center gap-2">
+                            <i class="fa-regular fa-calendar text-gray-600 text-xs"></i>
+                            <span>Hoje, 14:50</span>
+                        </div>
+                    </td>
+                    <td class="py-3 px-3">
+                        <span class="text-white font-medium">27.8°C</span>
+                        <span class="text-green-400 text-[10px] ml-1">▲ +0.1</span>
+                    </td>
+                    <td class="py-3 px-3">
+                        <span>7.0</span>
+                        <div class="inline-block ml-2 w-12 h-1 bg-gray-700 rounded-full overflow-hidden">
+                            <div class="h-full bg-purple-500 rounded-full" style="width: 65%"></div>
+                        </div>
+                    </td>
+                    <td class="py-3 px-3">
+                        <span>6.8 mg/L</span>
+                        <span class="text-green-400 text-[10px] ml-1">▲ +0.3</span>
+                    </td>
+                    <td class="py-3 px-3">
+                        <div class="flex items-center gap-2">
+                            <span>68%</span>
+                            <div class="w-16 h-1 bg-gray-700 rounded-full overflow-hidden">
+                                <div class="h-full bg-cyan-500 rounded-full" style="width: 68%"></div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="py-3 px-3 text-center">
+                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-green-500/10 text-green-400">
+                            <i class="fa-solid fa-circle text-[6px]"></i> Normal
+                        </span>
+                    </td>
                 </tr>
             </tbody>
         </table>
+    </div>
+    
+    <!-- RODAPÉ COM PAGINAÇÃO -->
+    <div class="flex flex-col sm:flex-row items-center justify-between gap-3 mt-4 pt-3 border-t border-gray-800">
+        <div class="text-xs text-gray-500">
+            Mostrando <span class="text-gray-300">4</span> de <span class="text-gray-300">24</span> leituras
+        </div>
+        
+        <div class="flex items-center gap-1">
+            <button class="w-7 h-7 rounded-lg bg-gray-800/50 text-gray-500 hover:bg-gray-700 hover:text-white transition-colors flex items-center justify-center disabled:opacity-50" disabled>
+                <i class="fa-solid fa-chevron-left text-xs"></i>
+            </button>
+            <button class="w-7 h-7 rounded-lg bg-blue-500/20 text-blue-400 hover:bg-blue-500/30 transition-colors flex items-center justify-center text-xs font-medium">1</button>
+            <button class="w-7 h-7 rounded-lg bg-gray-800/50 text-gray-500 hover:bg-gray-700 hover:text-white transition-colors flex items-center justify-center text-xs">2</button>
+            <button class="w-7 h-7 rounded-lg bg-gray-800/50 text-gray-500 hover:bg-gray-700 hover:text-white transition-colors flex items-center justify-center text-xs">3</button>
+            <button class="w-7 h-7 rounded-lg bg-gray-800/50 text-gray-500 hover:bg-gray-700 hover:text-white transition-colors flex items-center justify-center">
+                <i class="fa-solid fa-chevron-right text-xs"></i>
+            </button>
+        </div>
     </div>
 </div>

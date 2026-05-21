@@ -1,0 +1,34 @@
+<div class="rounded-lg bg-gray-900/80 border border-@(BorderColor)/40 p-5 hover:border-@(BorderColor)/80 transition-all duration-300 border-gray-700">
+    <div class="flex items-center justify-between mb-3">
+        <div class="flex items-center gap-2">
+            <i class="@IconClass text-@(TextColor) text-sm"></i>
+            <span class="text-gray-300 text-sm font-medium">@Title</span>
+        </div>
+        <span class="text-@(TextColor) text-[10px] font-bold bg-@(BorderColor)/10 px-2 py-0.5 rounded">@SensorId</span>
+    </div>
+    
+    <div class="mb-2">
+        <span class="text-3xl font-bold text-white">@Value</span>
+        @if (!string.IsNullOrEmpty(Unit))
+        {
+            <span class="text-gray-500 ml-1">@Unit</span>
+        }
+    </div>
+    
+    <div class="flex items-center gap-2 pt-2 border-t border-gray-800">
+        <div class="w-1.5 h-1.5 rounded-full bg-@(StatusColor)"></div>
+        <span class="text-@(StatusColor) text-xs">@StatusText</span>
+    </div>
+</div>
+
+@code {
+    [Parameter] public string Title { get; set; } = "Título";
+    [Parameter] public string Value { get; set; } = "0";
+    [Parameter] public string Unit { get; set; } = "";
+    [Parameter] public string SensorId { get; set; } = "Sensor";
+    [Parameter] public string IconClass { get; set; } = "fa-solid fa-chart-line";
+    [Parameter] public string BorderColor { get; set; } = "blue-500";
+    [Parameter] public string TextColor { get; set; } = "blue-400";
+    [Parameter] public string StatusColor { get; set; } = "green-500";
+    [Parameter] public string StatusText { get; set; } = "Normal";
+}
