@@ -1,11 +1,9 @@
-﻿<!-- Sidebar Industrial Premium - SEM LINHA -->
-<aside class="@($"fixed top-0 left-0 z-50 h-screen bg-black transition-all duration-300 flex flex-col select-none {(IsCollapsed ? "w-24" : "w-80")}")">
+﻿<aside class="@($"fixed top-0 left-0 z-50 h-screen bg-black transition-all duration-300 flex flex-col select-none {(IsCollapsed ? "w-24" : "w-80")}")">
     
-    <!-- TOPO COM PADDING DINÂMICO (SÓ AQUI) -->
     <div class="@(IsCollapsed ? "w-full py-8 px-2" : "w-full py-8 px-8") flex items-center justify-between">
         <a href="/aquasmart/" class="flex items-center gap-4 group cursor-pointer">
-            <div class="w-10 h-10 flex items-center justify-center">
-                <img src="assets/logo.svg" alt="Aquasmart" class="w-full h-full object-contain brightness-100 group-hover:scale-105 transition-all duration-300" />
+            <div class="w-10 h-10 flex items-center justify-center bg-gradient-to-br from-blue-500 to-blue-700 rounded-lg">
+                <span class="text-white font-bold text-sm">A</span>
             </div>
             @if (!IsCollapsed)
             {
@@ -15,22 +13,19 @@
             }
         </a>
         
-        <!-- BOTÃO COLLAPSO BONITO -->
         <button @onclick="OnToggle" 
                 class="w-10 h-10 flex items-center justify-center text-neutral-400 hover:text-white hover:bg-white/5 transition-all duration-300 group">
             <i class="fa-solid @(IsCollapsed ? "fa-bars-staggered" : "fa-bars") text-xl group-hover:scale-110 transition-transform duration-300"></i>
         </button>
     </div>
 
-    <!-- NAVEGAÇÃO (MANTÉM IGUAL, SEM MUDANÇAS) -->
     <nav class="flex-1 flex flex-col justify-center w-full gap-2 px-6">
         
-        <!-- Dashboard -->
         <NavLink href="/aquasmart/" Match="NavLinkMatch.All" 
                  class="flex items-center gap-4 px-4 py-3 text-neutral-400 hover:text-white hover:bg-white/5 transition-all duration-200 group w-full" 
                  ActiveClass="!bg-white/5 !text-white !border-l-4 !border-l-blue-500">
             <div class="w-5 flex justify-center">
-                <i class="fa-solid fa-chart-line text-lg group-hover:scale-105 transition-transform duration-200"></i>
+                <i class="fa-solid fa-chart-line text-lg"></i>
             </div>
             @if (!IsCollapsed) 
             { 
@@ -38,12 +33,11 @@
             }
         </NavLink>
         
-        <!-- Alertas -->
         <NavLink href="/aquasmart/alertas" 
                  class="flex items-center gap-4 px-4 py-3 text-neutral-400 hover:text-white hover:bg-white/5 transition-all duration-200 group w-full" 
                  ActiveClass="!bg-white/5 !text-white !border-l-4 !border-l-blue-500">
             <div class="w-5 flex justify-center">
-                <i class="fa-solid fa-bell text-lg group-hover:scale-105 transition-transform duration-200"></i>
+                <i class="fa-solid fa-bell text-lg"></i>
             </div>
             @if (!IsCollapsed) 
             { 
@@ -51,12 +45,11 @@
             }
         </NavLink>
         
-        <!-- Histórico -->
         <NavLink href="/aquasmart/historico" 
                  class="flex items-center gap-4 px-4 py-3 text-neutral-400 hover:text-white hover:bg-white/5 transition-all duration-200 group w-full" 
                  ActiveClass="!bg-white/5 !text-white !border-l-4 !border-l-blue-500">
             <div class="w-5 flex justify-center">
-                <i class="fa-solid fa-clock-rotate-left text-lg group-hover:scale-105 transition-transform duration-200"></i>
+                <i class="fa-solid fa-clock-rotate-left text-lg"></i>
             </div>
             @if (!IsCollapsed) 
             { 
@@ -66,7 +59,6 @@
         
     </nav>
 
-    <!-- BASE VAZIA -->
     <div class="w-full h-16"></div>
 
 </aside>

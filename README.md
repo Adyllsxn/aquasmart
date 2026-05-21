@@ -3,6 +3,7 @@
   
   [![GitHub](https://img.shields.io/badge/github-aquasmart-181717?style=for-the-badge&logo=github)](https://github.com/Adyllsxn/aquasmart)
   [![Site](https://img.shields.io/badge/demo-site-4c1?style=for-the-badge&logo=githubpages&logoColor=white)](https://adyllsxn.github.io/aquasmart/)
+  [![Setup](https://img.shields.io/badge/setup-guide-239120?style=for-the-badge&logo=gitbook&logoColor=white)](docs/Setup.md)
   [![License](https://img.shields.io/badge/license-MIT-blue?style=for-the-badge)](LICENSE)
 
 </div>
