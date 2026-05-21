@@ -1,24 +1,55 @@
-<div class="bg-gradient-to-br from-gray-900/80 to-gray-900/40 rounded-3xl p-5 border border-gray-700">
-    <h3 class="font-semibold text-white mb-4 flex items-center gap-2">
-        <div class="w-1 h-6 bg-yellow-500 rounded-full"></div>
-        <i class="fa-solid fa-bell text-yellow-500"></i>
-        Alertas Recentes
-    </h3>
+<div class="bg-gradient-to-br from-gray-900 to-gray-950 rounded-2xl p-5 border border-gray-800">
+    
+    <!-- CABEÇALHO -->
+    <div class="flex items-center justify-between mb-4">
+        <h3 class="font-semibold text-white flex items-center gap-2">
+            <div class="w-1 h-6 bg-yellow-500 rounded-full"></div>
+            <i class="fa-solid fa-bell text-yellow-500"></i>
+            Alertas Recentes
+        </h3>
+        <span class="text-xs text-gray-500 bg-gray-800/50 px-2 py-1 rounded-lg">3 novos</span>
+    </div>
+    
+    <!-- LISTA DE ALERTAS -->
     <div class="space-y-3">
-        <div class="bg-red-500/5 border-l-4 border-red-500 rounded-xl p-3 hover:bg-red-500/10 transition-all">
-            <p class="text-red-400 text-sm font-medium">⚠️ Temperatura elevada</p>
-            <p class="text-red-300/70 text-xs mt-1">32°C - Acima do limite recomendado</p>
-            <span class="text-gray-500 text-xs mt-1 block">Há 2 minutos</span>
-        </div>
-        <div class="bg-yellow-500/5 border-l-4 border-yellow-500 rounded-xl p-3 hover:bg-yellow-500/10 transition-all">
-            <p class="text-yellow-400 text-sm font-medium">⚠️ Oxigénio baixo</p>
-            <p class="text-yellow-300/70 text-xs mt-1">4.8 mg/L - Ativar bomba de oxigénio</p>
-            <span class="text-gray-500 text-xs mt-1 block">Há 5 minutos</span>
-        </div>
-        <div class="bg-green-500/5 border-l-4 border-green-500 rounded-xl p-3 hover:bg-green-500/10 transition-all">
-            <p class="text-green-400 text-sm font-medium">✓ Sistema OK</p>
-            <p class="text-green-300/70 text-xs mt-1">Todos os parâmetros dentro da normalidade</p>
-            <span class="text-gray-500 text-xs mt-1 block">Há 10 minutos</span>
-        </div>
+        
+        <AlertItem Title="Temperatura elevada"
+                   Message="32°C - Acima do limite recomendado"
+                   Time="Há 2 minutos"
+                   Sensor="Sensor #1"
+                   Type="Crítico"
+                   Icon="⚠️"
+                   BgColor="red"
+                   BorderColor="red-500"
+                   TextColor="red-400" />
+        
+        <AlertItem Title="Oxigénio baixo"
+                   Message="4.8 mg/L - Ativar bomba de oxigénio"
+                   Time="Há 5 minutos"
+                   Sensor="Sensor #3"
+                   Type="Atenção"
+                   Icon="⚠️"
+                   BgColor="yellow"
+                   BorderColor="yellow-500"
+                   TextColor="yellow-400" />
+        
+        <AlertItem Title="Sistema OK"
+                   Message="Todos os parâmetros dentro da normalidade"
+                   Time="Há 10 minutos"
+                   Sensor="Sistema"
+                   Type="Normal"
+                   Icon="✓"
+                   BgColor="green"
+                   BorderColor="green-500"
+                   TextColor="green-400" />
+        
+    </div>
+    
+    <!-- BOTÃO VER TODOS -->
+    <div class="mt-4 pt-3 border-t border-gray-800">
+        <button class="w-full text-center text-gray-500 text-xs hover:text-gray-300 transition-colors flex items-center justify-center gap-1">
+            Ver todos os alertas
+            <i class="fa-solid fa-arrow-right text-[10px]"></i>
+        </button>
     </div>
 </div>

@@ -1,12 +1,13 @@
 ﻿@inherits LayoutComponentBase
 
-<div class="min-h-screen bg-gray-950">
-    <div class="flex">
+<div class="h-screen bg-gray-950 overflow-hidden">
+    <div class="flex h-full">
         <Sidebar IsCollapsed="_sidebarCollapsed" OnToggle="ToggleSidebar" />
 
-        <div id="main-content" style="@($"transition: margin-left 0.3s ease; margin-left: {(_sidebarCollapsed ? "80px" : "256px")}; flex: 1; display: flex; flex-direction: column; height: 100vh; overflow-y: auto;")">
-            <main class="p-6">
-                <div class="mx-auto">
+        <div class="transition-all duration-300 flex-1 h-full overflow-y-auto"
+             style="margin-left: @(_sidebarCollapsed ? "96px" : "300px")">
+            <main class="p-4 md:p-8">
+                <div class="max-w-7xl mx-auto">
                     @Body
                 </div>
             </main>

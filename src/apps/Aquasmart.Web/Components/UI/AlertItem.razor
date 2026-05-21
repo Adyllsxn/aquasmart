@@ -1,0 +1,30 @@
+<div class="rounded-xl bg-@BgColor/5 border border-@BorderColor/20 p-3 hover:bg-@BgColor/10 hover:border-@BorderColor/40 transition-all duration-300 border-gray-700 cursor-pointer">
+    <div class="flex items-start gap-3">
+        <div class="w-1.5 h-1.5 rounded-full bg-@BorderColor mt-1.5"></div>
+        <div class="flex-1">
+            <div class="flex items-center justify-between flex-wrap gap-2">
+                <p class="text-@TextColor text-sm font-medium">@Icon @Title</p>
+                <span class="text-@TextColor/60 text-[10px] bg-@BorderColor/10 px-2 py-0.5 rounded-full">@Type</span>
+            </div>
+            <p class="text-@TextColor/70 text-xs mt-1">@Message</p>
+            <div class="flex items-center gap-3 mt-2">
+                <span class="text-gray-500 text-[10px] flex items-center gap-1">
+                    <i class="fa-regular fa-clock"></i> @Time
+                </span>
+                <span class="text-gray-600 text-[10px]">@Sensor</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter] public string Title { get; set; } = "";
+    [Parameter] public string Message { get; set; } = "";
+    [Parameter] public string Time { get; set; } = "";
+    [Parameter] public string Sensor { get; set; } = "";
+    [Parameter] public string Type { get; set; } = "";
+    [Parameter] public string Icon { get; set; } = "⚠️";
+    [Parameter] public string BgColor { get; set; } = "red";
+    [Parameter] public string BorderColor { get; set; } = "red-500";
+    [Parameter] public string TextColor { get; set; } = "red-400";
+}
