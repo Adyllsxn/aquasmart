@@ -1,3 +1,6 @@
+@inject SignalRService SignalRService
+@implements IDisposable
+
 <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
     <div>
         <h1 class="text-2xl md:text-3xl font-bold bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
@@ -9,17 +12,74 @@
                 <span class="text-gray-500 text-sm">Monitorização em tempo real</span>
             </div>
             
-            
-            <div class="flex items-center gap-2 bg-green-500/10 px-2 py-0.5 rounded-full">
-                <div class="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></div>
-                <span class="text-xs text-green-400">Conectado</span>
+            <div class="flex items-center gap-2 @GetStatusClass() px-2 py-0.5 rounded-full">
+                <div class="w-1.5 h-1.5 @GetDotClass() rounded-full @GetPulseClass()"></div>
+                <span class="text-xs @GetTextClass()">@GetStatusText()</span>
             </div>
         </div>
     </div>
     
-    <!-- Info -->
     <div class="flex items-center gap-2 text-xs text-gray-500 bg-gray-800/30 px-3 py-1.5 rounded-full">
         <i class="fa-solid fa-bolt text-yellow-500 text-[10px]"></i>
         <span>Dados atualizam automaticamente</span>
     </div>
 </div>
+
+@code {
+    private bool _isConnected = false;
+    private CancellationTokenSource? _cts;
+    
+    protected override async Task OnInitializedAsync()
+    {
+        SignalRService.OnConnected += OnConnectedHandler;
+        SignalRService.OnDisconnected += OnDisconnectedHandler;
+        
+        _cts = new CancellationTokenSource();
+        
+        // ✅ Tenta conectar
+        await SignalRService.StartAsync();
+        
+        // ✅ Atualiza status atual
+        _isConnected = SignalRService.IsConnected;
+        
+        // ✅ Verifica status periodicamente
+        _ = Task.Run(async () =>
+        {
+            while (!_cts.Token.IsCancellationRequested)
+            {
+                await Task.Delay(2000, _cts.Token);
+                var currentStatus = SignalRService.IsConnected;
+                if (_isConnected != currentStatus)
+                {
+                    _isConnected = currentStatus;
+                    await InvokeAsync(StateHasChanged);
+                }
+            }
+        });
+    }
+    
+    private void OnConnectedHandler()
+    {
+        _isConnected = true;
+        InvokeAsync(StateHasChanged);
+    }
+    
+    private void OnDisconnectedHandler(string? error)
+    {
+        _isConnected = false;
+        InvokeAsync(StateHasChanged);
+    }
+    
+    private string GetStatusClass() => _isConnected ? "bg-green-500/10" : "bg-red-500/10";
+    private string GetDotClass() => _isConnected ? "bg-green-500" : "bg-red-500";
+    private string GetPulseClass() => _isConnected ? "animate-pulse" : "";
+    private string GetTextClass() => _isConnected ? "text-green-400" : "text-red-400";
+    private string GetStatusText() => _isConnected ? "Conectado" : "Desconectado";
+    
+    public void Dispose()
+    {
+        _cts?.Cancel();
+        SignalRService.OnConnected -= OnConnectedHandler;
+        SignalRService.OnDisconnected -= OnDisconnectedHandler;
+    }
+}

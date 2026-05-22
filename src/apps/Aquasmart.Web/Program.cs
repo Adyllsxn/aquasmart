@@ -4,10 +4,11 @@ builder.RootComponents.Add<HeadOutlet>("head::after");
 
 builder.Services.AddScoped(sp => new HttpClient 
 { 
-    BaseAddress = new Uri("https://localhost:5205/")
+    BaseAddress = new Uri("http://localhost:5205/")
 });
 
 builder.Services.AddScoped<SignalRService>();
+builder.Services.AddScoped<ConnectionService>();
 builder.Services
     .AddBlazorise()
     .AddTailwindProviders()
