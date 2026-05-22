@@ -1,3 +1,7 @@
+@using Aquasmart.Web.Core.Models
+@inject LeituraService LeituraService
+@implements IDisposable
+
 <div class="bg-gradient-to-br from-gray-900 to-gray-950 rounded-2xl p-5 border border-gray-800">
     
     <!-- CABEÇALHO -->
@@ -7,43 +11,52 @@
             <i class="fa-solid fa-bell text-yellow-500"></i>
             Alertas Recentes
         </h3>
-        <span class="text-xs text-gray-500 bg-gray-800/50 px-2 py-1 rounded-lg">3 novos</span>
+        <div class="flex items-center gap-2">
+            @if (!_isConnected)
+            {
+                <span class="text-xs text-red-500 bg-red-500/10 px-2 py-1 rounded-lg">
+                    <i class="fa-solid fa-circle text-[6px] animate-pulse mr-1"></i> Offline
+                </span>
+            }
+            else
+            {
+                <span class="text-xs text-gray-500 bg-gray-800/50 px-2 py-1 rounded-lg">@_alertas.Count novos</span>
+            }
+        </div>
     </div>
     
     <!-- LISTA DE ALERTAS -->
-    <div class="space-y-3">
-        
-        <AlertItem Title="Temperatura elevada"
-                   Message="32°C - Acima do limite recomendado"
-                   Time="Há 2 minutos"
-                   Sensor="Sensor #1"
-                   Type="Crítico"
-                   Icon="⚠️"
-                   BgColor="red"
-                   BorderColor="red-500"
-                   TextColor="red-400" />
-        
-        <AlertItem Title="Oxigénio baixo"
-                   Message="4.8 mg/L - Ativar bomba de oxigénio"
-                   Time="Há 5 minutos"
-                   Sensor="Sensor #3"
-                   Type="Atenção"
-                   Icon="⚠️"
-                   BgColor="yellow"
-                   BorderColor="yellow-500"
-                   TextColor="yellow-400" />
-        
-        <AlertItem Title="Sistema OK"
-                   Message="Todos os parâmetros dentro da normalidade"
-                   Time="Há 10 minutos"
-                   Sensor="Sistema"
-                   Type="Normal"
-                   Icon="✓"
-                   BgColor="green"
-                   BorderColor="green-500"
-                   TextColor="green-400" />
-        
-    </div>
+    @if (!_isConnected)
+    {
+        <div class="text-center py-8 text-gray-500">
+            <i class="fa-solid fa-wifi text-3xl mb-2 opacity-30"></i>
+            <p class="text-sm">Sem conexão com o servidor</p>
+        </div>
+    }
+    else if (_alertas.Any())
+    {
+        <div class="space-y-3">
+            @foreach (var alerta in _alertas.Take(3))
+            {
+                <AlertItem Title="@alerta.Title"
+                           Message="@alerta.Message"
+                           Time="@alerta.Time"
+                           Sensor="@alerta.Sensor"
+                           Type="@alerta.Type"
+                           Icon="@alerta.Icon"
+                           BgColor="@alerta.BgColor"
+                           BorderColor="@alerta.BorderColor"
+                           TextColor="@alerta.TextColor" />
+            }
+        </div>
+    }
+    else
+    {
+        <div class="text-center py-8 text-gray-500">
+            <i class="fa-solid fa-check-circle text-3xl mb-2 opacity-30 text-green-500"></i>
+            <p class="text-sm">Todos os parâmetros estão normais</p>
+        </div>
+    }
     
     <!-- BOTÃO VER TODOS -->
     <div class="mt-4 pt-3 border-t border-gray-800">
@@ -53,3 +66,275 @@
         </button>
     </div>
 </div>
+
+@code {
+    private List<AlertaItem> _alertas = new();
+    private bool _isConnected = false;
+    private Timer? _timer;
+    private Leitura? _ultimaLeitura;
+    
+    protected override async Task OnInitializedAsync()
+    {
+        LeituraService.OnConnected += OnConnectedHandler;
+        LeituraService.OnDisconnected += OnDisconnectedHandler;
+        LeituraService.OnNovaLeitura += OnNovaLeitura;
+        
+        await CarregarDadosIniciais();
+        await LeituraService.StartAsync();
+        
+        _isConnected = LeituraService.IsConnected;
+        
+        _timer = new Timer(_ =>
+        {
+            var currentStatus = LeituraService.IsConnected;
+            if (_isConnected != currentStatus)
+            {
+                _isConnected = currentStatus;
+                InvokeAsync(StateHasChanged);
+            }
+        }, null, 1000, 1000);
+        
+        StateHasChanged();
+    }
+    
+    private void OnConnectedHandler()
+    {
+        _isConnected = true;
+        Console.WriteLine("✅ AlertsSection: Conectado");
+        _ = Task.Run(async () => await CarregarDadosIniciais());
+        InvokeAsync(StateHasChanged);
+    }
+    
+    private void OnDisconnectedHandler(string? error)
+    {
+        _isConnected = false;
+        Console.WriteLine($"❌ AlertsSection: Desconectado - {error}");
+        _alertas.Clear();
+        InvokeAsync(StateHasChanged);
+    }
+    
+    private async Task CarregarDadosIniciais()
+    {
+        try
+        {
+            var http = new HttpClient();
+            http.BaseAddress = new Uri("http://localhost:5205/");
+            var leituras = await http.GetFromJsonAsync<List<Leitura>>("api/leituras");
+            
+            if (leituras != null && leituras.Any())
+            {
+                _ultimaLeitura = leituras.OrderByDescending(x => x.Timestamp).First();
+                GerarAlertas(_ultimaLeitura);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Erro ao carregar alertas: {ex.Message}");
+        }
+        finally
+        {
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+    
+    private void OnNovaLeitura(Leitura leitura)
+    {
+        if (_isConnected)
+        {
+            _ultimaLeitura = leitura;
+            GerarAlertas(leitura);
+            InvokeAsync(StateHasChanged);
+        }
+    }
+    
+    private void GerarAlertas(Leitura leitura)
+    {
+        _alertas.Clear();
+        
+        // Alerta de Temperatura
+        if (leitura.Temperatura > 28)
+        {
+            _alertas.Add(new AlertaItem
+            {
+                Title = "Temperatura elevada",
+                Message = $"{leitura.Temperatura:F1}°C - Acima do limite recomendado (28°C)",
+                Time = DateTime.Now.ToString("HH:mm"),
+                Sensor = "Sensor #1",
+                Type = "Crítico",
+                Icon = "⚠️",
+                BgColor = "red",
+                BorderColor = "red-500",
+                TextColor = "red-400"
+            });
+        }
+        else if (leitura.Temperatura < 22)
+        {
+            _alertas.Add(new AlertaItem
+            {
+                Title = "Temperatura baixa",
+                Message = $"{leitura.Temperatura:F1}°C - Abaixo do limite recomendado (22°C)",
+                Time = DateTime.Now.ToString("HH:mm"),
+                Sensor = "Sensor #1",
+                Type = "Atenção",
+                Icon = "⚠️",
+                BgColor = "yellow",
+                BorderColor = "yellow-500",
+                TextColor = "yellow-400"
+            });
+        }
+        
+        // Alerta de pH
+        if (leitura.Ph < 6.5)
+        {
+            _alertas.Add(new AlertaItem
+            {
+                Title = "pH baixo",
+                Message = $"{leitura.Ph:F1} - pH abaixo do ideal (6.5-7.5)",
+                Time = DateTime.Now.ToString("HH:mm"),
+                Sensor = "Sensor #2",
+                Type = "Atenção",
+                Icon = "⚠️",
+                BgColor = "yellow",
+                BorderColor = "yellow-500",
+                TextColor = "yellow-400"
+            });
+        }
+        else if (leitura.Ph > 7.5)
+        {
+            _alertas.Add(new AlertaItem
+            {
+                Title = "pH alto",
+                Message = $"{leitura.Ph:F1} - pH acima do ideal (6.5-7.5)",
+                Time = DateTime.Now.ToString("HH:mm"),
+                Sensor = "Sensor #2",
+                Type = "Atenção",
+                Icon = "⚠️",
+                BgColor = "yellow",
+                BorderColor = "yellow-500",
+                TextColor = "yellow-400"
+            });
+        }
+        
+        // Alerta de Oxigénio
+        if (leitura.Oxigenio < 5)
+        {
+            _alertas.Add(new AlertaItem
+            {
+                Title = "Oxigénio crítico",
+                Message = $"{leitura.Oxigenio:F1} mg/L - Nível muito baixo! Ativar bomba de oxigénio",
+                Time = DateTime.Now.ToString("HH:mm"),
+                Sensor = "Sensor #3",
+                Type = "Crítico",
+                Icon = "⚠️",
+                BgColor = "red",
+                BorderColor = "red-500",
+                TextColor = "red-400"
+            });
+        }
+        else if (leitura.Oxigenio < 6)
+        {
+            _alertas.Add(new AlertaItem
+            {
+                Title = "Oxigénio baixo",
+                Message = $"{leitura.Oxigenio:F1} mg/L - Atenção! Recomendado acima de 6 mg/L",
+                Time = DateTime.Now.ToString("HH:mm"),
+                Sensor = "Sensor #3",
+                Type = "Atenção",
+                Icon = "⚠️",
+                BgColor = "yellow",
+                BorderColor = "yellow-500",
+                TextColor = "yellow-400"
+            });
+        }
+        
+        // Alerta de Nível da Água
+        if (leitura.NivelAgua < 30)
+        {
+            _alertas.Add(new AlertaItem
+            {
+                Title = "Nível da água crítico",
+                Message = $"{leitura.NivelAgua:F0}% - Nível muito baixo! Verificar bomba",
+                Time = DateTime.Now.ToString("HH:mm"),
+                Sensor = "Sensor #4",
+                Type = "Crítico",
+                Icon = "⚠️",
+                BgColor = "red",
+                BorderColor = "red-500",
+                TextColor = "red-400"
+            });
+        }
+        else if (leitura.NivelAgua < 50)
+        {
+            _alertas.Add(new AlertaItem
+            {
+                Title = "Nível da água baixo",
+                Message = $"{leitura.NivelAgua:F0}% - Atenção! Recomendado acima de 50%",
+                Time = DateTime.Now.ToString("HH:mm"),
+                Sensor = "Sensor #4",
+                Type = "Atenção",
+                Icon = "⚠️",
+                BgColor = "yellow",
+                BorderColor = "yellow-500",
+                TextColor = "yellow-400"
+            });
+        }
+        else if (leitura.NivelAgua > 80)
+        {
+            _alertas.Add(new AlertaItem
+            {
+                Title = "Nível da água alto",
+                Message = $"{leitura.NivelAgua:F0}% - Nível elevado! Monitorar",
+                Time = DateTime.Now.ToString("HH:mm"),
+                Sensor = "Sensor #4",
+                Type = "Atenção",
+                Icon = "⚠️",
+                BgColor = "yellow",
+                BorderColor = "yellow-500",
+                TextColor = "yellow-400"
+            });
+        }
+        
+        // Se não tiver nenhum alerta, adiciona mensagem de sistema OK
+        if (!_alertas.Any())
+        {
+            _alertas.Add(new AlertaItem
+            {
+                Title = "Sistema OK",
+                Message = "Todos os parâmetros dentro da normalidade",
+                Time = DateTime.Now.ToString("HH:mm"),
+                Sensor = "Sistema",
+                Type = "Normal",
+                Icon = "✓",
+                BgColor = "green",
+                BorderColor = "green-500",
+                TextColor = "green-400"
+            });
+        }
+        
+        // Ordenar: Crítico primeiro, depois Atenção, depois Normal
+        _alertas = _alertas.OrderByDescending(a => a.Type == "Crítico")
+                          .ThenByDescending(a => a.Type == "Atenção")
+                          .ToList();
+    }
+    
+    public void Dispose()
+    {
+        _timer?.Dispose();
+        LeituraService.OnConnected -= OnConnectedHandler;
+        LeituraService.OnDisconnected -= OnDisconnectedHandler;
+        LeituraService.OnNovaLeitura -= OnNovaLeitura;
+    }
+    
+    private class AlertaItem
+    {
+        public string Title { get; set; } = "";
+        public string Message { get; set; } = "";
+        public string Time { get; set; } = "";
+        public string Sensor { get; set; } = "";
+        public string Type { get; set; } = "";
+        public string Icon { get; set; } = "";
+        public string BgColor { get; set; } = "";
+        public string BorderColor { get; set; } = "";
+        public string TextColor { get; set; } = "";
+    }
+}

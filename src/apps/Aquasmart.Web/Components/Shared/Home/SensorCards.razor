@@ -1,43 +1,274 @@
+@inject LeituraService LeituraService
+@inject HttpClient Http
+@implements IDisposable
+
 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
     
     <SensorCard Title="Temperatura"
-                Value="28.5"
+                Value="@_temperatura"
                 Unit="°C"
                 SensorId="Sensor #1"
                 IconClass="fa-solid fa-thermometer-half"
                 BorderColor="red-500"
                 TextColor="red-400"
-                StatusColor="green-500"
-                StatusText="Normal (22-28°C)" />
+                StatusColor="@_tempStatusColor"
+                StatusText="@_tempStatusText" />
     
     <SensorCard Title="pH"
-                Value="7.2"
+                Value="@_ph"
                 Unit=""
                 SensorId="Sensor #2"
                 IconClass="fa-solid fa-flask"
                 BorderColor="purple-500"
                 TextColor="purple-400"
-                StatusColor="green-500"
-                StatusText="Ideal (6.5-7.5)" />
+                StatusColor="@_phStatusColor"
+                StatusText="@_phStatusText" />
     
     <SensorCard Title="Oxigénio"
-                Value="6.2"
+                Value="@_oxigenio"
                 Unit="mg/L"
                 SensorId="Sensor #3"
                 IconClass="fa-solid fa-wind"
                 BorderColor="yellow-500"
                 TextColor="yellow-400"
-                StatusColor="yellow-500"
-                StatusText="Atenção (>5 mg/L)" />
+                StatusColor="@_oxigenioStatusColor"
+                StatusText="@_oxigenioStatusText" />
     
     <SensorCard Title="Nível"
-                Value="65"
+                Value="@_nivelAgua"
                 Unit="%"
                 SensorId="Sensor #4"
                 IconClass="fa-solid fa-water"
                 BorderColor="cyan-500"
                 TextColor="cyan-400"
-                StatusColor="green-500"
-                StatusText="Normal (50-80%)" />
+                StatusColor="@_nivelStatusColor"
+                StatusText="@_nivelStatusText" />
 
 </div>
+
+@code {
+    private string _temperatura = "--";
+    private string _ph = "--";
+    private string _oxigenio = "--";
+    private string _nivelAgua = "--";
+    
+    // Status colors
+    private string _tempStatusColor = "gray-500";
+    private string _tempStatusText = "Aguardando...";
+    private string _phStatusColor = "gray-500";
+    private string _phStatusText = "Aguardando...";
+    private string _oxigenioStatusColor = "gray-500";
+    private string _oxigenioStatusText = "Aguardando...";
+    private string _nivelStatusColor = "gray-500";
+    private string _nivelStatusText = "Aguardando...";
+    
+    private bool _isConnected = false;
+    private Timer? _timer;
+    
+    protected override async Task OnInitializedAsync()
+    {
+        // Eventos de conexão
+        LeituraService.OnConnected += OnConnectedHandler;
+        LeituraService.OnDisconnected += OnDisconnectedHandler;
+        LeituraService.OnNovaLeitura += OnNovaLeitura;
+        
+        // Carregar dados iniciais
+        await LoadInitialData();
+        
+        // Iniciar SignalR
+        await LeituraService.StartAsync();
+        
+        // Atualiza status atual
+        _isConnected = LeituraService.IsConnected;
+        
+        // Timer para verificar status
+        _timer = new Timer(_ =>
+        {
+            var currentStatus = LeituraService.IsConnected;
+            if (_isConnected != currentStatus)
+            {
+                _isConnected = currentStatus;
+                
+                if (!_isConnected)
+                {
+                    SetOfflineStatus();
+                }
+                
+                InvokeAsync(StateHasChanged);
+            }
+        }, null, 1000, 1000);
+        
+        StateHasChanged();
+    }
+    
+    private void OnConnectedHandler()
+    {
+        _isConnected = true;
+        Console.WriteLine("✅ SensorCards: Conectado ao SignalR");
+        
+        // Recarregar dados quando reconectar
+        _ = Task.Run(async () =>
+        {
+            await LoadInitialData();
+        });
+        
+        InvokeAsync(StateHasChanged);
+    }
+    
+    private void OnDisconnectedHandler(string? error)
+    {
+        _isConnected = false;
+        Console.WriteLine($"❌ SensorCards: Desconectado - {error}");
+        
+        // Marca todos os cards como offline
+        SetOfflineStatus();
+        
+        InvokeAsync(StateHasChanged);
+    }
+    
+    private void SetOfflineStatus()
+    {
+        _temperatura = "--";
+        _ph = "--";
+        _oxigenio = "--";
+        _nivelAgua = "--";
+        
+        _tempStatusColor = "gray-500";
+        _tempStatusText = "Offline";
+        _phStatusColor = "gray-500";
+        _phStatusText = "Offline";
+        _oxigenioStatusColor = "gray-500";
+        _oxigenioStatusText = "Offline";
+        _nivelStatusColor = "gray-500";
+        _nivelStatusText = "Offline";
+        
+        Console.WriteLine("📡 Cards marcados como OFFLINE");
+    }
+    
+    private async Task LoadInitialData()
+    {
+        try
+        {
+            Console.WriteLine("📡 Carregando dados iniciais...");
+            var leituras = await Http.GetFromJsonAsync<List<Leitura>>("api/leituras");
+            if (leituras != null && leituras.Any())
+            {
+                var ultima = leituras.OrderByDescending(x => x.Timestamp).First();
+                UpdateFromLeitura(ultima);
+                Console.WriteLine($"✅ Dados carregados: Temp={ultima.Temperatura}°C");
+            }
+            else
+            {
+                SetOfflineStatus();
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"❌ Erro ao carregar dados: {ex.Message}");
+            SetOfflineStatus();
+        }
+        finally
+        {
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+    
+    private void OnNovaLeitura(Leitura leitura)
+    {
+        if (_isConnected)
+        {
+            Console.WriteLine($"📊 Atualizando card com nova leitura: Temp={leitura.Temperatura}°C");
+            UpdateFromLeitura(leitura);
+            InvokeAsync(StateHasChanged);
+        }
+    }
+    
+    private void UpdateFromLeitura(Leitura leitura)
+    {
+        _temperatura = leitura.Temperatura.ToString("F1");
+        _ph = leitura.Ph.ToString("F1");
+        _oxigenio = leitura.Oxigenio.ToString("F1");
+        _nivelAgua = leitura.NivelAgua.ToString("F0");
+        
+        // Status da Temperatura
+        if (leitura.Temperatura < 22)
+        {
+            _tempStatusColor = "blue-500";
+            _tempStatusText = $"Baixa ({leitura.Temperatura:F1}°C)";
+        }
+        else if (leitura.Temperatura > 28)
+        {
+            _tempStatusColor = "red-500";  // ✅ Corrigido: faltavam as aspas
+            _tempStatusText = $"Alta ({leitura.Temperatura:F1}°C)";
+        }
+        else
+        {
+            _tempStatusColor = "green-500";
+            _tempStatusText = $"Normal ({leitura.Temperatura:F1}°C)";
+        }
+        
+        // Status do pH
+        if (leitura.Ph < 6.5)
+        {
+            _phStatusColor = "blue-500";
+            _phStatusText = $"Baixo ({leitura.Ph:F1})";
+        }
+        else if (leitura.Ph > 7.5)
+        {
+            _phStatusColor = "red-500";
+            _phStatusText = $"Alto ({leitura.Ph:F1})";
+        }
+        else
+        {
+            _phStatusColor = "green-500";
+            _phStatusText = $"Ideal ({leitura.Ph:F1})";
+        }
+        
+        // Status do Oxigénio
+        if (leitura.Oxigenio < 5)
+        {
+            _oxigenioStatusColor = "red-500";
+            _oxigenioStatusText = $"Crítico ({leitura.Oxigenio:F1} mg/L)";
+        }
+        else if (leitura.Oxigenio < 6)
+        {
+            _oxigenioStatusColor = "yellow-500";
+            _oxigenioStatusText = $"Atenção ({leitura.Oxigenio:F1} mg/L)";
+        }
+        else
+        {
+            _oxigenioStatusColor = "green-500";
+            _oxigenioStatusText = $"Normal ({leitura.Oxigenio:F1} mg/L)";
+        }
+        
+        // Status do Nível
+        if (leitura.NivelAgua < 30)
+        {
+            _nivelStatusColor = "red-500";
+            _nivelStatusText = $"Crítico ({leitura.NivelAgua:F0}%)";
+        }
+        else if (leitura.NivelAgua < 50)
+        {
+            _nivelStatusColor = "yellow-500";
+            _nivelStatusText = $"Baixo ({leitura.NivelAgua:F0}%)";
+        }
+        else if (leitura.NivelAgua > 80)
+        {
+            _nivelStatusColor = "yellow-500";
+            _nivelStatusText = $"Alto ({leitura.NivelAgua:F0}%)";
+        }
+        else
+        {
+            _nivelStatusColor = "green-500";
+            _nivelStatusText = $"Normal ({leitura.NivelAgua:F0}%)";
+        }
+    }
+    
+    public void Dispose()
+    {
+        _timer?.Dispose();
+        LeituraService.OnConnected -= OnConnectedHandler;
+        LeituraService.OnDisconnected -= OnDisconnectedHandler;
+        LeituraService.OnNovaLeitura -= OnNovaLeitura;
+    }
+}
