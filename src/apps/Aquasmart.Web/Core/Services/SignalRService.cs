@@ -1,99 +1,90 @@
 namespace Aquasmart.Web.Core.Services;
-public class SignalRService : IAsyncDisposable
+
+public class SignalRService
 {
     private HubConnection? _hubConnection;
-    private readonly ILogger<SignalRService> _logger;
-
-    public SignalRService(ILogger<SignalRService> logger)
-    {
-        _logger = logger;
-    }
-
-    // Eventos para o frontend
-    public event Action<LeituraSensorDto>? OnNovaLeitura;
-    public event Action<AlertaDto>? OnNovoAlerta;
-    public event Action<ComandoDto>? OnComandoExecutado;
-    public event Action<bool>? OnConnectionStateChanged;
-
+    private readonly string _hubUrl;
+    
+    public event Action? OnConnected;
+    public event Action<string?>? OnDisconnected;
+    public event Action? OnReconnecting;
+    public event Action<string?>? OnReconnected;
+    
     public bool IsConnected => _hubConnection?.State == HubConnectionState.Connected;
-
-    public async Task StartAsync(string hubUrl)
+    
+    public SignalRService(HttpClient httpClient)
     {
-        if (_hubConnection != null)
-        {
-            await StopAsync();
-        }
-
+        var baseUrl = httpClient.BaseAddress?.ToString().TrimEnd('/');
+        _hubUrl = $"{baseUrl}/sensorhub";
+        Console.WriteLine($"🔌 SignalR Hub URL: {_hubUrl}");
+    }
+    
+    public async Task StartAsync()
+    {
         _hubConnection = new HubConnectionBuilder()
-            .WithUrl(hubUrl)
-            .WithAutomaticReconnect()
+            .WithUrl(_hubUrl)
+            .WithAutomaticReconnect(new SignalRRetryPolicy())
             .Build();
-
-        // Registrar handlers
-        _hubConnection.On<LeituraSensorDto>("ReceiveNovaLeitura", leitura =>
+        
+        _hubConnection.Closed += async (error) =>
         {
-            _logger.LogInformation("📊 Nova leitura: {Temp}°C", leitura.Temperatura);
-            OnNovaLeitura?.Invoke(leitura);
-        });
-
-        _hubConnection.On<AlertaDto>("ReceiveNovoAlerta", alerta =>
-        {
-            _logger.LogWarning("⚠️ Novo alerta: {Mensagem}", alerta.Mensagem);
-            OnNovoAlerta?.Invoke(alerta);
-        });
-
-        _hubConnection.On<ComandoDto>("ReceiveComandoExecutado", comando =>
-        {
-            _logger.LogInformation("🔧 Comando executado: {Tipo}", comando.Tipo);
-            OnComandoExecutado?.Invoke(comando);
-        });
-
-        // Estado da conexão
-        _hubConnection.Reconnecting += (error) =>
-        {
-            _logger.LogWarning("Reconnecting...");
-            OnConnectionStateChanged?.Invoke(false);
-            return Task.CompletedTask;
+            Console.WriteLine($"🔴 SignalR Closed: {error?.Message}");
+            OnDisconnected?.Invoke(error?.Message);
+            await Task.CompletedTask;
         };
-
-        _hubConnection.Reconnected += (connectionId) =>
+        
+        _hubConnection.Reconnecting += async (error) =>
         {
-            _logger.LogInformation("Reconnected!");
-            OnConnectionStateChanged?.Invoke(true);
-            return Task.CompletedTask;
+            Console.WriteLine($"🟡 SignalR Reconnecting: {error?.Message}");
+            OnReconnecting?.Invoke();
+            await Task.CompletedTask;
         };
-
-        _hubConnection.Closed += (error) =>
+        
+        _hubConnection.Reconnected += async (connectionId) =>
         {
-            _logger.LogWarning("Connection closed");
-            OnConnectionStateChanged?.Invoke(false);
-            return Task.CompletedTask;
+            Console.WriteLine($"🟢 SignalR Reconnected: {connectionId}");
+            OnReconnected?.Invoke(connectionId);
+            await Task.CompletedTask;
         };
-
+        
         try
         {
             await _hubConnection.StartAsync();
-            _logger.LogInformation("✅ SignalR connected to {HubUrl}", hubUrl);
-            OnConnectionStateChanged?.Invoke(true);
+            Console.WriteLine($"✅ SignalR Connected! ConnectionId: {_hubConnection.ConnectionId}");
+            OnConnected?.Invoke();
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "❌ Error connecting to SignalR");
-            OnConnectionStateChanged?.Invoke(false);
+            Console.WriteLine($"❌ SignalR Error: {ex.Message}");
+            OnDisconnected?.Invoke(ex.Message);
         }
     }
-
+    
     public async Task StopAsync()
     {
         if (_hubConnection != null)
         {
             await _hubConnection.DisposeAsync();
-            _hubConnection = null;
         }
     }
-
-    public async ValueTask DisposeAsync()
+    
+    public HubConnectionState GetConnectionState()
     {
-        await StopAsync();
+        return _hubConnection?.State ?? HubConnectionState.Disconnected;
+    }
+}
+
+// ✅ Classe RetryPolicy dentro do mesmo namespace
+public class SignalRRetryPolicy : IRetryPolicy
+{
+    public TimeSpan? NextRetryDelay(RetryContext retryContext)
+    {
+        // Máximo de 10 tentativas
+        if (retryContext.PreviousRetryCount >= 10)
+            return null;
+        
+        // Exponential backoff: 2s, 4s, 8s, 16s, 32s...
+        var delay = TimeSpan.FromSeconds(Math.Min(32, Math.Pow(2, retryContext.PreviousRetryCount)));
+        return delay;
     }
 }
