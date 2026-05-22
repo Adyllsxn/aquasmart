@@ -7,5 +7,6 @@ global using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 global using Microsoft.AspNetCore.SignalR.Client;
 
 global using Aquasmart.Web;
-global using Aquasmart.Web.Core.DTOs;
+global using Aquasmart.Web.Core.Pipelines;
+global using Aquasmart.Web.Core.Models;
 global using Aquasmart.Web.Core.Services;

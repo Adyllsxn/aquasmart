@@ -1,107 +1,198 @@
-<div class="lg:col-span-2 bg-gradient-to-br from-gray-900/80 to-gray-900/40 rounded-3xl p-5 border border-gray-700">
+@using Aquasmart.Web.Core.Models
+@inject LeituraService LeituraService
+@inject HttpClient Http
+@implements IDisposable
+
+<div class="lg:col-span-2 bg-gradient-to-br from-gray-900 to-gray-950 rounded-2xl p-5 border border-gray-800">
     <div class="flex justify-between items-center mb-4">
         <h3 class="font-semibold text-white flex items-center gap-2">
             <div class="w-1 h-6 bg-blue-500 rounded-full"></div>
             <i class="fa-solid fa-chart-line text-blue-500"></i>
-            Histórico de Temperatura
+            Temperatura - Últimas Leituras
         </h3>
-        <div class="flex gap-2">
-            <button class="text-xs text-gray-500 hover:text-white transition-colors px-2 py-1">6h</button>
-            <button class="text-xs text-gray-500 hover:text-white transition-colors px-2 py-1">24h</button>
-            <button class="text-xs bg-blue-600/20 text-blue-400 rounded-lg px-2 py-1">7d</button>
-            <button class="text-xs text-gray-500 hover:text-white transition-colors px-2 py-1">30d</button>
+        <div class="text-xs @(_isConnected ? "text-green-400" : "text-red-400")">
+            <i class="fa-solid fa-circle text-[8px] animate-pulse mr-1"></i>
+            @(_isConnected ? "Conectado" : "Desconectado")
         </div>
     </div>
     
-    <!-- Gráfico -->
-    <div class="relative">
-        <svg viewBox="0 0 800 250" class="w-full h-auto" style="min-height: 250px;">
-            <!-- Grid lines -->
-            <line x1="50" y1="40" x2="770" y2="40" stroke="#374151" stroke-width="0.5" stroke-dasharray="4"/>
-            <line x1="50" y1="80" x2="770" y2="80" stroke="#374151" stroke-width="0.5" stroke-dasharray="4"/>
-            <line x1="50" y1="120" x2="770" y2="120" stroke="#374151" stroke-width="0.5" stroke-dasharray="4"/>
-            <line x1="50" y1="160" x2="770" y2="160" stroke="#374151" stroke-width="0.5" stroke-dasharray="4"/>
-            <line x1="50" y1="200" x2="770" y2="200" stroke="#374151" stroke-width="0.5" stroke-dasharray="4"/>
-            
-            <!-- Y-axis labels -->
-            <text x="40" y="44" class="text-[10px] fill-gray-500" text-anchor="end">32°C</text>
-            <text x="40" y="84" class="text-[10px] fill-gray-500" text-anchor="end">30°C</text>
-            <text x="40" y="124" class="text-[10px] fill-gray-500" text-anchor="end">28°C</text>
-            <text x="40" y="164" class="text-[10px] fill-gray-500" text-anchor="end">26°C</text>
-            <text x="40" y="204" class="text-[10px] fill-gray-500" text-anchor="end">24°C</text>
-            
-            <!-- Area under the line -->
-            <polygon points="50,85 130,92 210,78 290,65 370,82 450,105 530,95 610,75 690,88 770,82 770,220 50,220" 
-                     fill="url(#gradient)" opacity="0.15"/>
-            
-            <!-- Temperature line -->
-            <polyline points="50,85 130,92 210,78 290,65 370,82 450,105 530,95 610,75 690,88 770,82" 
-                      fill="none" stroke="#3b82f6" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-            
-            <!-- Line glow effect -->
-            <polyline points="50,85 130,92 210,78 290,65 370,82 450,105 530,95 610,75 690,88 770,82" 
-                      fill="none" stroke="#60a5fa" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" opacity="0.2"/>
-            
-            <!-- Data points -->
-            <circle cx="50" cy="85" r="4" fill="#3b82f6" stroke="#1e3a5f" stroke-width="2"/>
-            <circle cx="130" cy="92" r="4" fill="#3b82f6" stroke="#1e3a5f" stroke-width="2"/>
-            <circle cx="210" cy="78" r="4" fill="#3b82f6" stroke="#1e3a5f" stroke-width="2"/>
-            <circle cx="290" cy="65" r="4" fill="#3b82f6" stroke="#1e3a5f" stroke-width="2"/>
-            <circle cx="370" cy="82" r="4" fill="#3b82f6" stroke="#1e3a5f" stroke-width="2"/>
-            <circle cx="450" cy="105" r="5" fill="#ef4444" stroke="#1e3a5f" stroke-width="2"/>
-            <circle cx="530" cy="95" r="4" fill="#3b82f6" stroke="#1e3a5f" stroke-width="2"/>
-            <circle cx="610" cy="75" r="4" fill="#3b82f6" stroke="#1e3a5f" stroke-width="2"/>
-            <circle cx="690" cy="88" r="4" fill="#3b82f6" stroke="#1e3a5f" stroke-width="2"/>
-            <circle cx="770" cy="82" r="4" fill="#3b82f6" stroke="#1e3a5f" stroke-width="2"/>
-            
-            <!-- Highlight point alert -->
-            <circle cx="450" cy="105" r="8" fill="none" stroke="#ef4444" stroke-width="2" opacity="0.5"/>
-            <circle cx="450" cy="105" r="12" fill="none" stroke="#ef4444" stroke-width="1" opacity="0.3"/>
-            
-            <!-- X-axis labels -->
-            <text x="50" y="225" class="text-[10px] fill-gray-500" text-anchor="middle">Seg</text>
-            <text x="130" y="225" class="text-[10px] fill-gray-500" text-anchor="middle">Ter</text>
-            <text x="210" y="225" class="text-[10px] fill-gray-500" text-anchor="middle">Qua</text>
-            <text x="290" y="225" class="text-[10px] fill-gray-500" text-anchor="middle">Qui</text>
-            <text x="370" y="225" class="text-[10px] fill-gray-500" text-anchor="middle">Sex</text>
-            <text x="450" y="225" class="text-[10px] fill-gray-500" text-anchor="middle">Sáb</text>
-            <text x="530" y="225" class="text-[10px] fill-gray-500" text-anchor="middle">Dom</text>
-            <text x="610" y="225" class="text-[10px] fill-gray-500" text-anchor="middle">Seg</text>
-            <text x="690" y="225" class="text-[10px] fill-gray-500" text-anchor="middle">Ter</text>
-            <text x="770" y="225" class="text-[10px] fill-gray-500" text-anchor="middle">Qua</text>
-            
-            <!-- Gradients -->
-            <defs>
-                <linearGradient id="gradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stop-color="#3b82f6" stop-opacity="0.6"/>
-                    <stop offset="100%" stop-color="#3b82f6" stop-opacity="0"/>
-                </linearGradient>
-            </defs>
-        </svg>
+    @if (_leituras.Any() && _isConnected)
+    {
+        <div class="space-y-3">
+            @foreach (var item in _leituras)
+            {
+                var percentual = (item.Temperatura / 40) * 100;
+                percentual = Math.Min(percentual, 100);
+                var corBarra = item.Temperatura > 28 ? "bg-red-500" : (item.Temperatura < 22 ? "bg-blue-500" : "bg-green-500");
+                
+                <div>
+                    <div class="flex justify-between text-xs mb-1">
+                        <span class="text-gray-400">@item.Hora</span>
+                        <span class="text-white font-medium">@item.Temperatura.ToString("F1")°C</span>
+                    </div>
+                    <div class="w-full bg-gray-800 rounded-full h-6 overflow-hidden">
+                        <div class="@corBarra h-full rounded-full transition-all duration-500 flex items-center justify-end pr-2"
+                             style="width: @(percentual)%">
+                            @if (percentual > 15)
+                            {
+                                <span class="text-white text-[10px] font-bold">@item.Temperatura.ToString("F1")°C</span>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
         
-        <!-- Tooltip/hover alert -->
-        <div class="absolute top-1/2 left-1/2 transform -translate-x-12 -translate-y-4 opacity-0 hover:opacity-100 transition-opacity pointer-events-none">
-            <div class="bg-red-600 text-white text-xs rounded-lg px-2 py-1 whitespace-nowrap">
-                ⚠️ Pico de 31.5°C
+        <div class="flex justify-between items-center mt-4 pt-3 border-t border-gray-800">
+            <div class="flex gap-4">
+                <div class="flex items-center gap-2">
+                    <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+                    <span class="text-xs text-gray-400">Normal (22-28)</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <div class="w-3 h-3 bg-red-500 rounded-full"></div>
+                    <span class="text-xs text-gray-400">Alerta (&gt;28)</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <div class="w-3 h-3 bg-blue-500 rounded-full"></div>
+                    <span class="text-xs text-gray-400">Baixa (&lt;22)</span>
+                </div>
             </div>
         </div>
-    </div>
-    
-    <!-- Legend -->
-    <div class="flex justify-between items-center mt-4 pt-3 border-t border-gray-700">
-        <div class="flex gap-4">
-            <div class="flex items-center gap-2">
-                <div class="w-2 h-2 bg-blue-500 rounded-full"></div>
-                <span class="text-xs text-gray-500">Temperatura</span>
-            </div>
-            <div class="flex items-center gap-2">
-                <div class="w-2 h-2 bg-red-500 rounded-full"></div>
-                <span class="text-xs text-gray-500">Alerta</span>
+    }
+    else if (!_isConnected)
+    {
+        <div class="h-64 flex items-center justify-center">
+            <div class="text-center text-gray-500">
+                <i class="fa-solid fa-wifi text-4xl mb-2 opacity-30"></i>
+                <p>Sem conexão com o servidor</p>
+                <p class="text-xs mt-2">Tentando reconectar...</p>
             </div>
         </div>
-        <div class="flex items-center gap-2">
-            <i class="fa-solid fa-arrow-trend-up text-green-500 text-xs"></i>
-            <span class="text-xs text-gray-500">Média: <span class="text-white">28.3°C</span></span>
+    }
+    else
+    {
+        <div class="h-64 flex items-center justify-center">
+            <div class="text-center text-gray-500">
+                <i class="fa-solid fa-chart-simple text-4xl mb-2 opacity-30"></i>
+                <p>Aguardando dados...</p>
+            </div>
         </div>
-    </div>
+    }
 </div>
+
+@code {
+    private List<LeituraItem> _leituras = new();
+    private bool _isConnected = false;
+    private Timer? _timer;
+    
+    protected override async Task OnInitializedAsync()
+    {
+        LeituraService.OnConnected += OnConnectedHandler;
+        LeituraService.OnDisconnected += OnDisconnectedHandler;
+        LeituraService.OnNovaLeitura += OnNovaLeitura;
+        
+        await CarregarDadosIniciais();
+        await LeituraService.StartAsync();
+        
+        _isConnected = LeituraService.IsConnected;
+        
+        _timer = new Timer(_ =>
+        {
+            var currentStatus = LeituraService.IsConnected;
+            if (_isConnected != currentStatus)
+            {
+                _isConnected = currentStatus;
+                InvokeAsync(StateHasChanged);
+            }
+        }, null, 1000, 1000);
+        
+        StateHasChanged();
+    }
+    
+    private void OnConnectedHandler()
+    {
+        _isConnected = true;
+        Console.WriteLine("ChartSection: Conectado ao SignalR");
+        _ = Task.Run(async () => await CarregarDadosIniciais());
+        InvokeAsync(StateHasChanged);
+    }
+    
+    private void OnDisconnectedHandler(string? error)
+    {
+        _isConnected = false;
+        Console.WriteLine($"ChartSection: Desconectado - {error}");
+        _leituras.Clear();
+        InvokeAsync(StateHasChanged);
+    }
+    
+    private async Task CarregarDadosIniciais()
+    {
+        try
+        {
+            Console.WriteLine("Carregando dados do gráfico...");
+            var leituras = await Http.GetFromJsonAsync<List<Leitura>>("api/leituras");
+            
+            if (leituras != null && leituras.Any())
+            {
+                var ultimas = leituras
+                    .OrderByDescending(x => x.Timestamp)
+                    .Take(6)
+                    .Reverse()
+                    .ToList();
+                
+                _leituras = ultimas.Select(x => new LeituraItem
+                {
+                    Hora = x.Timestamp.ToString("HH:mm"),
+                    Temperatura = x.Temperatura
+                }).ToList();
+            }
+            else
+            {
+                _leituras.Clear();
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Erro ao carregar dados: {ex.Message}");
+            _leituras.Clear();
+        }
+        finally
+        {
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+    
+    private void OnNovaLeitura(Leitura leitura)
+    {
+        if (_isConnected)
+        {
+            _leituras.Add(new LeituraItem
+            {
+                Hora = leitura.Timestamp.ToString("HH:mm"),
+                Temperatura = leitura.Temperatura
+            });
+            
+            if (_leituras.Count > 6)
+            {
+                _leituras.RemoveAt(0);
+            }
+            
+            InvokeAsync(StateHasChanged);
+        }
+    }
+    
+    public void Dispose()
+    {
+        _timer?.Dispose();
+        LeituraService.OnConnected -= OnConnectedHandler;
+        LeituraService.OnDisconnected -= OnDisconnectedHandler;
+        LeituraService.OnNovaLeitura -= OnNovaLeitura;
+    }
+    
+    private class LeituraItem
+    {
+        public string Hora { get; set; } = "";
+        public double Temperatura { get; set; }
+    }
+}

@@ -8,8 +8,8 @@ public static class SignalRExtensions
 
     public static void UseSignalRExtensions(this WebApplication app)
     {
-        app.MapHub<AquariumHub>("/aquarium-hub");
         app.MapHub<SensorHub>("/sensorhub");
-        Console.WriteLine("✅ SignalR Hub mapeado em /sensorhub");
+        app.MapHub<LeituraHub>("/leiturasHub");
+        Console.WriteLine("✅ SignalR Hubs mapeados: /sensorhub, /leiturasHub");
     }
 }
