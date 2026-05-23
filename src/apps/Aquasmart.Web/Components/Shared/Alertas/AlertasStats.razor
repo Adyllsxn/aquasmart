@@ -1,4 +1,4 @@
-@* AlertasStats.razor *@
+@* AlertasStats.razor*@
 @inject AlertasService AlertasService
 @implements IDisposable
 
@@ -35,17 +35,24 @@
         AlertasService.OnNovoAlerta += OnNovoAlerta;
         AlertasService.OnAlertaLido += OnAlertaLido;
         
-        await AlertasService.StartAsync();
+        _ = AlertasService.StartAsync();
     }
 
     private async Task CarregarEstatisticas()
     {
-        var alertas = await AlertasService.GetAllAsync();
-        total = alertas.Count;
-        lidos = alertas.Count(a => a.Lida);
-        criticosNaoLidos = alertas.Count(a => !a.Lida && a.Gravidade == 3);
-        amarelos = alertas.Count(a => !a.Lida && a.Gravidade == 1);
-        await InvokeAsync(StateHasChanged);
+        try
+        {
+            var alertas = await AlertasService.GetAllAsync();
+            total = alertas.Count;
+            lidos = alertas.Count(a => a.Lida);
+            criticosNaoLidos = alertas.Count(a => !a.Lida && a.Gravidade == 3);
+            amarelos = alertas.Count(a => !a.Lida && a.Gravidade == 1);
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Erro ao carregar estatísticas: {ex.Message}");
+        }
     }
 
     private void OnEstatisticasAtualizadas(AlertasStatsModels stats)

@@ -11,6 +11,7 @@ public class AlertasService
     public event Action<AlertasStatsModels>? OnEstatisticasAtualizadas;
     public event Action? OnConnected;
     public event Action<string?>? OnDisconnected;
+    public event Action<string?>? OnError;
     
     public bool IsConnected => _hubConnection?.State == HubConnectionState.Connected;
     
@@ -24,56 +25,56 @@ public class AlertasService
     
     public async Task StartAsync()
     {
-        _hubConnection = new HubConnectionBuilder()
-            .WithUrl(_hubUrl)
-            .WithAutomaticReconnect(new AlertasRetryPolicy())
-            .Build();
-        
-        _hubConnection.On<AlertaDto>("NovoAlerta", (alerta) =>
-        {
-            Console.WriteLine($"🔔 Novo alerta: {alerta.Mensagem}");
-            OnNovoAlerta?.Invoke(alerta);
-        });
-        
-        _hubConnection.On<Guid>("AlertaLido", (id) =>
-        {
-            Console.WriteLine($"✅ Alerta lido: {id}");
-            OnAlertaLido?.Invoke(id);
-        });
-        
-        _hubConnection.On<AlertasStatsModels>("EstatisticasAtualizadas", (stats) =>
-        {
-            Console.WriteLine($"📊 Estatísticas: Total={stats.Total}, NaoLidos={stats.NaoLidos}");
-            OnEstatisticasAtualizadas?.Invoke(stats);
-        });
-        
-        _hubConnection.On<string>("AlertasMarcadosLidos", (timestamp) =>
-        {
-            Console.WriteLine($"📋 Todos alertas marcados como lidos: {timestamp}");
-        });
-        
-        _hubConnection.Closed += async (error) =>
-        {
-            Console.WriteLine($"🔴 AlertasHub Closed: {error?.Message}");
-            OnDisconnected?.Invoke(error?.Message);
-            await Task.CompletedTask;
-        };
-        
-        _hubConnection.Reconnecting += async (error) =>
-        {
-            Console.WriteLine($"🟡 AlertasHub Reconnecting: {error?.Message}");
-            await Task.CompletedTask;
-        };
-        
-        _hubConnection.Reconnected += async (connectionId) =>
-        {
-            Console.WriteLine($"🟢 AlertasHub Reconnected: {connectionId}");
-            OnConnected?.Invoke();
-            await Task.CompletedTask;
-        };
-        
         try
         {
+            _hubConnection = new HubConnectionBuilder()
+                .WithUrl(_hubUrl)
+                .WithAutomaticReconnect(new AlertasRetryPolicy())
+                .Build();
+            
+            _hubConnection.On<AlertaDto>("NovoAlerta", (alerta) =>
+            {
+                Console.WriteLine($"🔔 Novo alerta: {alerta.Mensagem}");
+                OnNovoAlerta?.Invoke(alerta);
+            });
+            
+            _hubConnection.On<Guid>("AlertaLido", (id) =>
+            {
+                Console.WriteLine($"✅ Alerta lido: {id}");
+                OnAlertaLido?.Invoke(id);
+            });
+            
+            _hubConnection.On<AlertasStatsModels>("EstatisticasAtualizadas", (stats) =>
+            {
+                Console.WriteLine($"📊 Estatísticas: Total={stats.Total}, NaoLidos={stats.NaoLidos}");
+                OnEstatisticasAtualizadas?.Invoke(stats);
+            });
+            
+            _hubConnection.On<string>("AlertasMarcadosLidos", (timestamp) =>
+            {
+                Console.WriteLine($"📋 Todos alertas marcados como lidos: {timestamp}");
+            });
+            
+            _hubConnection.Closed += async (error) =>
+            {
+                Console.WriteLine($"🔴 AlertasHub Closed: {error?.Message}");
+                OnDisconnected?.Invoke(error?.Message);
+                await Task.CompletedTask;
+            };
+            
+            _hubConnection.Reconnecting += async (error) =>
+            {
+                Console.WriteLine($"🟡 AlertasHub Reconnecting: {error?.Message}");
+                await Task.CompletedTask;
+            };
+            
+            _hubConnection.Reconnected += async (connectionId) =>
+            {
+                Console.WriteLine($"🟢 AlertasHub Reconnected: {connectionId}");
+                OnConnected?.Invoke();
+                await Task.CompletedTask;
+            };
+            
             await _hubConnection.StartAsync();
             Console.WriteLine($"✅ AlertasHub Connected! ConnectionId: {_hubConnection.ConnectionId}");
             OnConnected?.Invoke();
@@ -82,6 +83,7 @@ public class AlertasService
         {
             Console.WriteLine($"❌ AlertasHub Error: {ex.Message}");
             OnDisconnected?.Invoke(ex.Message);
+            OnError?.Invoke($"Erro de conexão: {ex.Message}");
         }
     }
     
@@ -98,25 +100,58 @@ public class AlertasService
         return _hubConnection?.State ?? HubConnectionState.Disconnected;
     }
     
-    // API Methods
+    // API Methods com tratamento de erro
     public async Task<List<AlertaDto>> GetAllAsync()
     {
-        return await _httpClient.GetFromJsonAsync<List<AlertaDto>>("/api/alertas") ?? new();
+        try
+        {
+            return await _httpClient.GetFromJsonAsync<List<AlertaDto>>("/api/alertas") ?? new();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"❌ Erro ao buscar alertas: {ex.Message}");
+            OnError?.Invoke($"Erro ao buscar alertas: {ex.Message}");
+            return new List<AlertaDto>();
+        }
     }
     
     public async Task<List<AlertaDto>> GetNaoLidosAsync()
     {
-        return await _httpClient.GetFromJsonAsync<List<AlertaDto>>("/api/alertas/nao-lidos") ?? new();
+        try
+        {
+            return await _httpClient.GetFromJsonAsync<List<AlertaDto>>("/api/alertas/nao-lidos") ?? new();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"❌ Erro ao buscar alertas não lidos: {ex.Message}");
+            return new List<AlertaDto>();
+        }
     }
     
     public async Task MarcarComoLidaAsync(Guid id)
     {
-        await _httpClient.PutAsync($"/api/alertas/{id}/marcar-lida", null);
+        try
+        {
+            await _httpClient.PutAsync($"/api/alertas/{id}/marcar-lida", null);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"❌ Erro ao marcar alerta como lido: {ex.Message}");
+            OnError?.Invoke($"Erro ao marcar alerta: {ex.Message}");
+        }
     }
     
     public async Task MarcarTodosComoLidosAsync()
     {
-        await _httpClient.PutAsync("/api/alertas/marcar-todos-lidos", null);
+        try
+        {
+            await _httpClient.PutAsync("/api/alertas/marcar-todos-lidos", null);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"❌ Erro ao marcar todos alertas como lidos: {ex.Message}");
+            OnError?.Invoke($"Erro ao marcar todos alertas: {ex.Message}");
+        }
     }
 }
 
@@ -131,7 +166,6 @@ public class AlertasRetryPolicy : IRetryPolicy
     }
 }
 
-// DTOs
 public class AlertaDto
 {
     public Guid Id { get; set; }
