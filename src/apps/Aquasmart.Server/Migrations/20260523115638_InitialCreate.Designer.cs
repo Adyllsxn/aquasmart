@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Aquasmart.Server.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260520111019_InitialCreate")]
+    [Migration("20260523115638_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
