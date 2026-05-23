@@ -1,5 +1,5 @@
 self.assetsManifest = {
-  "version": "DSFxKrJ4",
+  "version": "dSd5bURZ",
   "assets": [
     {
       "hash": "sha256-1BB7u9Dv4KPjJLI6yZYzVhS0giwx4piY74Fc/3gCTiM=",
@@ -294,8 +294,8 @@ self.assetsManifest = {
       "url": "_content/Blazorise/vendors/tippy.js"
     },
     {
-      "hash": "sha256-k2JeGPT77KALwm5tkM1FeT2YZYLSXvv4aUDraWbV9QA=",
-      "url": "_framework/Aquasmart.Web.bul0cyiydw.wasm"
+      "hash": "sha256-BOVJSRxDXNcXarF1aRTEwowAg6B23PtvVo2sW5Tj5Es=",
+      "url": "_framework/Aquasmart.Web.cmyjbdbfke.wasm"
     },
     {
       "hash": "sha256-AO8KAmx90eocxXvKonP7R+CSRgZrpaP+iwWApEp/wSE=",
@@ -586,8 +586,8 @@ self.assetsManifest = {
       "url": "_framework/dotnet.runtime.r2kbxkuujc.js"
     },
     {
-      "hash": "sha256-Id0IjOJSW8thqrO8weNhWwN4s89RT38TDCnFostORn4=",
-      "url": "_framework/dotnet.xoy2lfzjzn.js"
+      "hash": "sha256-D9xDPLwN7Uw7xl2ZFcX9jgGj4e7hW6qHqsgKCBApKl8=",
+      "url": "_framework/dotnet.zjsah39ca3.js"
     },
     {
       "hash": "sha256-SZLtQnRc0JkwqHab0VUVP7T3uBPSeYzxzDnpxPpUnHk=",
@@ -630,7 +630,7 @@ self.assetsManifest = {
       "url": "css/styles.css"
     },
     {
-      "hash": "sha256-j11ZvB10CSNz1gS42lSfdZmjZIziqUt402eCVGL44DM=",
+      "hash": "sha256-kbeCT1Ct3QYl12Bi/wf3mUnritNBJzwvgduJYu9pMJA=",
       "url": "index.html"
     },
     {
