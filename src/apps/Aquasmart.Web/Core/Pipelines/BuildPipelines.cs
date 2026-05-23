@@ -12,6 +12,8 @@ public static class BuildPipelines
         builder.Services.AddScoped<LeituraService>();
         builder.Services.AddScoped<ConnectionService>();
         builder.Services.AddScoped<AlertasService>();
+        builder.Services.AddScoped<HistoricoService>();
+        
 
         builder.Services
             .AddBlazorise()
