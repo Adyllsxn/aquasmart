@@ -1,121 +1,312 @@
-<div class="space-y-3">
-    <!-- Alerta Vermelho (Crítico) -->
-    <div class="bg-gradient-to-br from-gray-900/80 to-gray-900/40 rounded-2xl p-4 border-l-4 border-red-500 hover:bg-red-500/5 transition-all duration-300 cursor-pointer">
-        <div class="flex items-start justify-between">
-            <div class="flex items-start gap-3">
-                <div class="w-10 h-10 rounded-xl bg-red-500/10 flex items-center justify-center">
-                    <i class="fa-solid fa-temperature-high text-red-400 text-lg"></i>
-                </div>
-                <div>
-                    <div class="flex items-center gap-2 mb-1">
-                        <span class="text-red-400 text-sm font-semibold">⚠️ Temperatura elevada</span>
-                        <span class="text-[10px] bg-red-500/20 text-red-400 px-2 py-0.5 rounded-full">Crítico</span>
-                        <span class="text-[10px] text-gray-500">Não lido</span>
-                    </div>
-                    <p class="text-gray-300 text-sm">A temperatura da água atingiu 32°C, acima do limite recomendado de 28°C.</p>
-                    <div class="flex items-center gap-3 mt-2">
-                        <span class="text-gray-500 text-xs flex items-center gap-1">
-                            <i class="fa-regular fa-clock"></i> Há 2 minutos
-                        </span>
-                        <span class="text-gray-500 text-xs flex items-center gap-1">
-                            <i class="fa-regular fa-flask"></i> Sensor #1
-                        </span>
-                    </div>
-                </div>
+@* AlertasList.razor *@
+@inject AlertasService AlertasService
+@implements IDisposable
+
+<div class="space-y-4">
+    <!-- Filtros -->
+    <div class="bg-gradient-to-br from-gray-900/80 to-gray-900/40 rounded-2xl p-4 border border-gray-700">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <!-- Filtro por Status -->
+            <div>
+                <label class="text-gray-400 text-xs block mb-1">Status</label>
+                <select @onchange="OnStatusChanged" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white">
+                    <option value="todos">Todos</option>
+                    <option value="nao-lidos">Não lidos</option>
+                    <option value="lidos">Lidos</option>
+                </select>
             </div>
-            <button class="text-gray-500 hover:text-green-400 transition-colors">
-                <i class="fa-regular fa-circle-check text-lg"></i>
-            </button>
+
+            <!-- Filtro por Gravidade -->
+            <div>
+                <label class="text-gray-400 text-xs block mb-1">Gravidade</label>
+                <select @onchange="OnGravidadeChanged" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white">
+                    <option value="todos">Todos</option>
+                    <option value="3">Crítico (Vermelho)</option>
+                    <option value="1">Atenção (Amarelo)</option>
+                </select>
+            </div>
+
+            <!-- Filtro por Tipo -->
+            <div>
+                <label class="text-gray-400 text-xs block mb-1">Tipo</label>
+                <select @onchange="OnTipoChanged" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white">
+                    <option value="todos">Todos</option>
+                    <option value="0">Temperatura</option>
+                    <option value="1">pH</option>
+                    <option value="2">Oxigénio</option>
+                    <option value="3">Nível</option>
+                </select>
+            </div>
+
+            <!-- Botão Limpar Filtros -->
+            <div class="flex items-end">
+                <button @onclick="LimparFiltros" class="w-full bg-gray-800 hover:bg-gray-700 border border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-300 transition">
+                    <i class="fa-solid fa-eraser mr-1"></i> Limpar
+                </button>
+            </div>
         </div>
     </div>
 
-    <!-- Alerta Amarelo (Atenção) -->
-    <div class="bg-gradient-to-br from-gray-900/80 to-gray-900/40 rounded-2xl p-4 border-l-4 border-yellow-500 hover:bg-yellow-500/5 transition-all duration-300 cursor-pointer">
-        <div class="flex items-start justify-between">
-            <div class="flex items-start gap-3">
-                <div class="w-10 h-10 rounded-xl bg-yellow-500/10 flex items-center justify-center">
-                    <i class="fa-solid fa-wind text-yellow-400 text-lg"></i>
-                </div>
-                <div>
-                    <div class="flex items-center gap-2 mb-1">
-                        <span class="text-yellow-400 text-sm font-semibold">⚠️ Oxigénio baixo</span>
-                        <span class="text-[10px] bg-yellow-500/20 text-yellow-400 px-2 py-0.5 rounded-full">Atenção</span>
-                        <span class="text-[10px] text-gray-500">Não lido</span>
-                    </div>
-                    <p class="text-gray-300 text-sm">O nível de oxigénio dissolvido está em 4.8 mg/L. O mínimo recomendado é 5.0 mg/L.</p>
-                    <div class="flex items-center gap-3 mt-2">
-                        <span class="text-gray-500 text-xs flex items-center gap-1">
-                            <i class="fa-regular fa-clock"></i> Há 5 minutos
-                        </span>
-                        <span class="text-gray-500 text-xs flex items-center gap-1">
-                            <i class="fa-regular fa-flask"></i> Sensor #3
-                        </span>
-                    </div>
-                </div>
-            </div>
-            <button class="text-gray-500 hover:text-green-400 transition-colors">
-                <i class="fa-regular fa-circle-check text-lg"></i>
-            </button>
+    <!-- Lista de Alertas -->
+    @if (alertasFiltrados.Count == 0)
+    {
+        <div class="bg-gradient-to-br from-gray-900/80 to-gray-900/40 rounded-2xl p-8 text-center border border-gray-700">
+            <i class="fa-regular fa-bell-slash text-4xl text-gray-600 mb-2"></i>
+            <p class="text-gray-500">Nenhum alerta encontrado</p>
         </div>
-    </div>
+    }
+    else
+    {
+        <div class="space-y-3">
+            @foreach (var alerta in alertasPaginados)
+            {
+                var gravidadeClass = alerta.Gravidade == 3 ? "red" : (alerta.Gravidade == 1 ? "yellow" : "green");
+                var lidoClass = alerta.Lida ? "opacity-70" : "";
+                
+                <div class="bg-gradient-to-br from-gray-900/80 to-gray-900/40 rounded-2xl p-4 border-l-4 border-@(gravidadeClass)-500 hover:bg-@(gravidadeClass)-500/5 transition-all duration-300 @lidoClass">
+                    <div class="flex items-start justify-between">
+                        <div class="flex items-start gap-3">
+                            <div class="w-10 h-10 rounded-xl bg-@(gravidadeClass)-500/10 flex items-center justify-center">
+                                @if (alerta.Tipo == 0)
+                                {
+                                    <i class="fa-solid fa-temperature-high text-@(gravidadeClass)-400 text-lg"></i>
+                                }
+                                else if (alerta.Tipo == 1)
+                                {
+                                    <i class="fa-solid fa-flask text-@(gravidadeClass)-400 text-lg"></i>
+                                }
+                                else if (alerta.Tipo == 2)
+                                {
+                                    <i class="fa-solid fa-wind text-@(gravidadeClass)-400 text-lg"></i>
+                                }
+                                else
+                                {
+                                    <i class="fa-solid fa-water text-@(gravidadeClass)-400 text-lg"></i>
+                                }
+                            </div>
+                            <div>
+                                <div class="flex items-center gap-2 mb-1 flex-wrap">
+                                    <span class="text-@(gravidadeClass)-400 text-sm font-semibold">
+                                        @if (alerta.Gravidade == 3) { <span>⚠️</span> }
+                                        else if (alerta.Gravidade == 1) { <span>⚠️</span> }
+                                        else { <span>✓</span> }
+                                        @alerta.Mensagem
+                                    </span>
+                                    <span class="text-[10px] bg-@(gravidadeClass)-500/20 text-@(gravidadeClass)-400 px-2 py-0.5 rounded-full">
+                                        @(alerta.Gravidade == 3 ? "Crítico" : (alerta.Gravidade == 1 ? "Atenção" : "Resolvido"))
+                                    </span>
+                                    <span class="text-[10px] text-gray-500">
+                                        @(alerta.Lida ? "Lido" : "Não lido")
+                                    </span>
+                                </div>
+                                <div class="flex items-center gap-3 mt-2">
+                                    <span class="text-gray-500 text-xs flex items-center gap-1">
+                                        <i class="fa-regular fa-clock"></i> @CalcularTempo(alerta.Timestamp)
+                                    </span>
+                                    <span class="text-gray-500 text-xs flex items-center gap-1">
+                                        <i class="fa-regular fa-flask"></i> Sensor: @alerta.LeituraSensorId.ToString().Substring(0, 8)...
+                                    </span>
+                                    <span class="text-gray-500 text-xs flex items-center gap-1">
+                                        <i class="fa-solid fa-chart-line"></i> Valor: @alerta.ValorRegistado
+                                        @(alerta.Tipo == 0 ? "°C" : (alerta.Tipo == 2 ? "mg/L" : (alerta.Tipo == 1 ? "" : "%")))
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        @if (!alerta.Lida)
+                        {
+                            <button @onclick="() => MarcarComoLida(alerta.Id)" class="text-gray-500 hover:text-green-400 transition-colors">
+                                <i class="fa-regular fa-circle-check text-lg"></i>
+                            </button>
+                        }
+                        else
+                        {
+                            <button class="text-green-400 transition-colors" disabled>
+                                <i class="fa-solid fa-circle-check text-lg"></i>
+                            </button>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
 
-    <!-- Alerta Verde (Resolvido/Lido) -->
-    <div class="bg-gradient-to-br from-gray-900/80 to-gray-900/40 rounded-2xl p-4 border-l-4 border-green-500 opacity-70">
-        <div class="flex items-start justify-between">
-            <div class="flex items-start gap-3">
-                <div class="w-10 h-10 rounded-xl bg-green-500/10 flex items-center justify-center">
-                    <i class="fa-solid fa-circle-check text-green-400 text-lg"></i>
-                </div>
-                <div>
-                    <div class="flex items-center gap-2 mb-1">
-                        <span class="text-green-400 text-sm font-semibold">✓ Temperatura normalizada</span>
-                        <span class="text-[10px] bg-green-500/20 text-green-400 px-2 py-0.5 rounded-full">Resolvido</span>
-                        <span class="text-[10px] text-gray-500">Lido</span>
-                    </div>
-                    <p class="text-gray-400 text-sm">A temperatura voltou aos níveis normais (26.5°C).</p>
-                    <div class="flex items-center gap-3 mt-2">
-                        <span class="text-gray-500 text-xs flex items-center gap-1">
-                            <i class="fa-regular fa-clock"></i> Há 10 minutos
-                        </span>
-                        <span class="text-gray-500 text-xs flex items-center gap-1">
-                            <i class="fa-regular fa-flask"></i> Sensor #1
-                        </span>
-                    </div>
-                </div>
+        <!-- Paginação -->
+        <div class="flex items-center justify-between mt-4">
+            <div class="text-gray-500 text-sm">
+                Mostrando @((paginaAtual - 1) * itensPorPagina + 1) a @Math.Min(paginaAtual * itensPorPagina, alertasFiltrados.Count) de @alertasFiltrados.Count
             </div>
-            <button class="text-green-400 transition-colors" disabled>
-                <i class="fa-solid fa-circle-check text-lg"></i>
-            </button>
-        </div>
-    </div>
-
-    <!-- Alerta Vermelho (Nível baixo) -->
-    <div class="bg-gradient-to-br from-gray-900/80 to-gray-900/40 rounded-2xl p-4 border-l-4 border-red-500 hover:bg-red-500/5 transition-all duration-300 cursor-pointer">
-        <div class="flex items-start justify-between">
-            <div class="flex items-start gap-3">
-                <div class="w-10 h-10 rounded-xl bg-red-500/10 flex items-center justify-center">
-                    <i class="fa-solid fa-water text-red-400 text-lg"></i>
-                </div>
-                <div>
-                    <div class="flex items-center gap-2 mb-1">
-                        <span class="text-red-400 text-sm font-semibold">⚠️ Nível da água baixo</span>
-                        <span class="text-[10px] bg-red-500/20 text-red-400 px-2 py-0.5 rounded-full">Crítico</span>
-                        <span class="text-[10px] text-gray-500">Não lido</span>
-                    </div>
-                    <p class="text-gray-300 text-sm">O nível da água está em 28%, abaixo do mínimo recomendado de 50%.</p>
-                    <div class="flex items-center gap-3 mt-2">
-                        <span class="text-gray-500 text-xs flex items-center gap-1">
-                            <i class="fa-regular fa-clock"></i> Há 15 minutos
-                        </span>
-                        <span class="text-gray-500 text-xs flex items-center gap-1">
-                            <i class="fa-regular fa-flask"></i> Sensor #4
-                        </span>
-                    </div>
-                </div>
+            <div class="flex gap-2">
+                <button @onclick="PaginaAnterior" disabled="@(paginaAtual == 1)" class="px-3 py-1 rounded-lg bg-gray-800 border border-gray-700 text-gray-300 hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed">
+                    <i class="fa-solid fa-chevron-left"></i>
+                </button>
+                <span class="px-3 py-1 rounded-lg bg-blue-500/20 text-blue-400 border border-blue-500/30">
+                    @paginaAtual / @totalPaginas
+                </span>
+                <button @onclick="ProximaPagina" disabled="@(paginaAtual == totalPaginas)" class="px-3 py-1 rounded-lg bg-gray-800 border border-gray-700 text-gray-300 hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed">
+                    <i class="fa-solid fa-chevron-right"></i>
+                </button>
             </div>
-            <button class="text-gray-500 hover:text-green-400 transition-colors">
-                <i class="fa-regular fa-circle-check text-lg"></i>
-            </button>
         </div>
-    </div>
+    }
 </div>
+
+@code {
+    private List<AlertaDto> todosAlertas = new();
+    private List<AlertaDto> alertasFiltrados = new();
+    private List<AlertaDto> alertasPaginados = new();
+    
+    private int paginaAtual = 1;
+    private int itensPorPagina = 6;
+    private int totalPaginas => (int)Math.Ceiling((double)alertasFiltrados.Count / itensPorPagina);
+    
+    // Filtros - valores padrão
+    private string filtroStatus = "todos";
+    private string filtroGravidade = "todos";
+    private string filtroTipo = "todos";
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CarregarAlertas();
+        
+        AlertasService.OnNovoAlerta += OnNovoAlerta;
+        AlertasService.OnAlertaLido += OnAlertaLido;
+        AlertasService.OnEstatisticasAtualizadas += OnEstatisticasAtualizadas;
+        
+        await AlertasService.StartAsync();
+    }
+
+    private async Task CarregarAlertas()
+    {
+        todosAlertas = await AlertasService.GetAllAsync();
+        AplicarFiltros();
+    }
+
+    private void AplicarFiltros()
+    {
+        var query = todosAlertas.AsEnumerable();
+        
+        // Filtro por Status
+        if (filtroStatus == "nao-lidos")
+            query = query.Where(a => !a.Lida);
+        else if (filtroStatus == "lidos")
+            query = query.Where(a => a.Lida);
+        
+        // Filtro por Gravidade
+        if (filtroGravidade != "todos")
+        {
+            var gravidade = int.Parse(filtroGravidade);
+            query = query.Where(a => a.Gravidade == gravidade);
+        }
+        
+        // Filtro por Tipo
+        if (filtroTipo != "todos")
+        {
+            var tipo = int.Parse(filtroTipo);
+            query = query.Where(a => a.Tipo == tipo);
+        }
+        
+        alertasFiltrados = query.OrderByDescending(a => a.Timestamp).ToList();
+        paginaAtual = 1;
+        AtualizarPaginacao();
+        StateHasChanged();
+    }
+
+    private void AtualizarPaginacao()
+    {
+        alertasPaginados = alertasFiltrados
+            .Skip((paginaAtual - 1) * itensPorPagina)
+            .Take(itensPorPagina)
+            .ToList();
+    }
+
+    private void PaginaAnterior()
+    {
+        if (paginaAtual > 1)
+        {
+            paginaAtual--;
+            AtualizarPaginacao();
+        }
+    }
+
+    private void ProximaPagina()
+    {
+        if (paginaAtual < totalPaginas)
+        {
+            paginaAtual++;
+            AtualizarPaginacao();
+        }
+    }
+
+    private void LimparFiltros()
+    {
+        filtroStatus = "todos";
+        filtroGravidade = "todos";
+        filtroTipo = "todos";
+        AplicarFiltros();
+        
+        // Resetar os selects manualmente
+        StateHasChanged();
+    }
+
+    private async Task MarcarComoLida(Guid id)
+    {
+        await AlertasService.MarcarComoLidaAsync(id);
+        await CarregarAlertas();
+    }
+
+    // Métodos para os filtros
+    private void OnStatusChanged(ChangeEventArgs e)
+    {
+        filtroStatus = e.Value?.ToString() ?? "todos";
+        AplicarFiltros();
+    }
+
+    private void OnGravidadeChanged(ChangeEventArgs e)
+    {
+        filtroGravidade = e.Value?.ToString() ?? "todos";
+        AplicarFiltros();
+    }
+
+    private void OnTipoChanged(ChangeEventArgs e)
+    {
+        filtroTipo = e.Value?.ToString() ?? "todos";
+        AplicarFiltros();
+    }
+
+    private void OnNovoAlerta(AlertaDto alerta)
+    {
+        InvokeAsync(CarregarAlertas);
+    }
+
+    private void OnAlertaLido(Guid id)
+    {
+        InvokeAsync(CarregarAlertas);
+    }
+
+    private void OnEstatisticasAtualizadas(AlertasStatsModels stats)
+    {
+        InvokeAsync(CarregarAlertas);
+    }
+
+    private string CalcularTempo(DateTime timestamp)
+    {
+        var diff = DateTime.UtcNow - timestamp;
+        
+        if (diff.TotalMinutes < 1)
+            return "Agora mesmo";
+        if (diff.TotalMinutes < 60)
+            return $"Há {(int)diff.TotalMinutes} minuto{(diff.TotalMinutes >= 2 ? "s" : "")}";
+        if (diff.TotalHours < 24)
+            return $"Há {(int)diff.TotalHours} hora{(diff.TotalHours >= 2 ? "s" : "")}";
+        
+        return timestamp.ToString("dd/MM/yyyy HH:mm");
+    }
+
+    public void Dispose()
+    {
+        AlertasService.OnNovoAlerta -= OnNovoAlerta;
+        AlertasService.OnAlertaLido -= OnAlertaLido;
+        AlertasService.OnEstatisticasAtualizadas -= OnEstatisticasAtualizadas;
+        _ = AlertasService.StopAsync();
+    }
+}

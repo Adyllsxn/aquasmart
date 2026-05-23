@@ -1,3 +1,5 @@
+global using System.Net.Http.Json;
+
 global using Blazorise;
 global using Blazorise.Tailwind;
 global using Blazorise.Icons.FontAwesome;

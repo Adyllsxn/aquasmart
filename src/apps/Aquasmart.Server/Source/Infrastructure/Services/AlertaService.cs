@@ -4,11 +4,13 @@ public class AlertaService : IAlertaService
     #region Dependencies
     private readonly AppDbContext _context;
     private readonly IUnitOfWork _uow;
+    private readonly IHubContext<AlertasHub> _hubContext;
 
-    public AlertaService(AppDbContext context, IUnitOfWork uow)
+    public AlertaService(AppDbContext context, IUnitOfWork uow, IHubContext<AlertasHub> hubContext)
     {
         _context = context;
         _uow = uow;
+        _hubContext = hubContext;
     }
     #endregion
 
@@ -71,6 +73,9 @@ public class AlertaService : IAlertaService
     {
         await _context.Alertas.AddAsync(alerta, cancellationToken);
         await _uow.SaveChangesAsync(cancellationToken);
+        
+        await NotificarNovoAlerta(alerta);
+        
         return alerta;
     }
 
@@ -81,6 +86,8 @@ public class AlertaService : IAlertaService
         {
             alerta.MarcarComoLida();
             await _uow.SaveChangesAsync(cancellationToken);
+            
+            await NotificarAlertaLido(alerta);
         }
     }
 
@@ -92,6 +99,9 @@ public class AlertaService : IAlertaService
             alerta.MarcarComoLida();
         }
         await _uow.SaveChangesAsync(cancellationToken);
+        
+        await _hubContext.Clients.All.SendAsync("AlertasMarcadosLidos", DateTime.UtcNow);
+        await NotificarEstatisticas();
     }
 
     public async Task AtualizarGravidadeAsync(Guid id, Gravidade novaGravidade, CancellationToken cancellationToken)
@@ -101,6 +111,7 @@ public class AlertaService : IAlertaService
         {
             alerta.AtualizarGravidade(novaGravidade);
             await _uow.SaveChangesAsync(cancellationToken);
+            await NotificarEstatisticas();
         }
     }
 
@@ -108,7 +119,6 @@ public class AlertaService : IAlertaService
     {
         var alertas = new List<AlertaEntity>();
         
-        // Regra: Temperatura > 28°C
         if (leitura.Temperatura > 28)
         {
             alertas.Add(new AlertaEntity(
@@ -119,7 +129,6 @@ public class AlertaService : IAlertaService
                 leitura.Id));
         }
         
-        // Regra: pH < 6.5
         if (leitura.Ph < 6.5m)
         {
             alertas.Add(new AlertaEntity(
@@ -130,7 +139,6 @@ public class AlertaService : IAlertaService
                 leitura.Id));
         }
         
-        // Regra: Oxigénio < 5 mg/L
         if (leitura.Oxigenio < 5)
         {
             alertas.Add(new AlertaEntity(
@@ -141,7 +149,6 @@ public class AlertaService : IAlertaService
                 leitura.Id));
         }
         
-        // Regra: Nível < 30%
         if (leitura.NivelAgua < 30)
         {
             alertas.Add(new AlertaEntity(
@@ -153,6 +160,52 @@ public class AlertaService : IAlertaService
         }
         
         return alertas;
+    }
+    #endregion
+
+    #region Private SignalR Methods
+    private async Task NotificarNovoAlerta(AlertaEntity alerta)
+    {
+        var alertaDto = new
+        {
+            alerta.Id,
+            alerta.Mensagem,
+            Tipo = (int)alerta.Tipo,
+            Gravidade = (int)alerta.Gravidade,
+            alerta.Timestamp,
+            alerta.Lida,
+            alerta.ValorRegistado,
+            alerta.LeituraSensorId
+        };
+        
+        await _hubContext.Clients.All.SendAsync("NovoAlerta", alertaDto);
+        await NotificarEstatisticas();
+    }
+    
+    private async Task NotificarAlertaLido(AlertaEntity alerta)
+    {
+        await _hubContext.Clients.All.SendAsync("AlertaLido", alerta.Id);
+        await NotificarEstatisticas();
+    }
+    
+    private async Task NotificarEstatisticas()
+    {
+        var total = await _context.Alertas.CountAsync();
+        var naoLidos = await _context.Alertas.CountAsync(x => !x.Lida);
+        var criticosNaoLidos = await _context.Alertas.CountAsync(x => !x.Lida && x.Gravidade == Gravidade.Vermelho);
+        var amarelos = await _context.Alertas.CountAsync(x => x.Gravidade == Gravidade.Amarelo && !x.Lida);
+        var lidos = total - naoLidos;
+        
+        var stats = new
+        {
+            Total = total,
+            NaoLidos = naoLidos,
+            Lidos = lidos,
+            CriticosNaoLidos = criticosNaoLidos,
+            Amarelos = amarelos
+        };
+        
+        await _hubContext.Clients.All.SendAsync("EstatisticasAtualizadas", stats);
     }
     #endregion
 }
