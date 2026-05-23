@@ -10,6 +10,7 @@ public static class SignalRExtensions
     {
         app.MapHub<SensorHub>("/sensorhub");
         app.MapHub<LeituraHub>("/leiturasHub");
-        Console.WriteLine("✅ SignalR Hubs mapeados: /sensorhub, /leiturasHub");
+        app.MapHub<AlertasHub>("/alertasHub");
+        Console.WriteLine("✅ SignalR Hubs mapeados: /sensorhub, /leiturasHub, /alertasHub");
     }
 }
