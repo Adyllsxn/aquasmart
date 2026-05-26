@@ -3,10 +3,11 @@ public static class BuildPipelines
 {
     public static void AddBuildPipelines(this WebAssemblyHostBuilder builder)
     {
-        builder.Services.AddScoped(sp => new HttpClient 
-        { 
-            BaseAddress = new Uri("http://localhost:5205/")
-        });
+        var apiUrl = builder.HostEnvironment.BaseAddress.Contains("https") 
+        ? "https://localhost:7202"
+        : "http://localhost:5205";
+    
+        builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(apiUrl) });
 
         builder.Services.AddScoped<SignalRService>(); 
         builder.Services.AddScoped<LeituraService>();

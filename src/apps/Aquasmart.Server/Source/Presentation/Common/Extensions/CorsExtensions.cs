@@ -6,7 +6,7 @@ public static class CorsExtensions
         builder.Services.AddCors(x => x.AddPolicy(
             UrlCors.CorsPolicyNames,
             policy => policy
-                .WithOrigins(UrlCors.FrontendHttp, UrlCors.FrontendHttps)
+                .WithOrigins(UrlCors.FrontendHttp, UrlCors.FrontendHttps, UrlCors.AspireHttps)
                 .AllowAnyHeader()
                 .AllowAnyMethod()
                 .AllowCredentials()
