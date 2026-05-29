@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="./docs/_logo.svg" alt="KwanzaSmart Logo" width="50%" /> 
+  <img src="./docs/assets/logo.svg" alt="KwanzaSmart Logo" width="50%" /> 
   </br> </br>
   
   [![GitHub](https://img.shields.io/badge/github-aquasmart-181717?style=for-the-badge&logo=github)](https://github.com/Adyllsxn/aquasmart)
@@ -41,7 +41,7 @@
 
 
 ## **📸 DEMO**
-<div align="center"> <img src="./docs/_demo.svg" alt="KwanzaSmart Dashboard" width="65%" /> <br /> <i>Interface principal com gráficos de temperatura, pH e alertas em tempo real</i> </div>
+<div align="center"> <img src="./docs/assets/demo.svg" alt="KwanzaSmart Dashboard" width="65%" /> <br /> <i>Interface principal com gráficos de temperatura, pH e alertas em tempo real</i> </div>
 
 ---
 
