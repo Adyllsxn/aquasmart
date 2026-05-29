@@ -90,4 +90,6 @@ dotnet run
 ### 7. Acessar a aplicação
 > PARA API: Abra o navegador em: http://localhost:5205 ou https://localhost:7202
 
+> PARA API COM SCALAR: Abra o navegador em: http://localhost:5205/scalar/ ou https://localhost:7202/scalar/
+
 > PARA WEB: Abra o navegador em: http://localhost:5063 ou https://localhost:7058
