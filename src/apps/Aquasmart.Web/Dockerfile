@@ -1,31 +1,20 @@
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 
-# Copy csproj files
-COPY ["src/apps/Aquasmart.Web/Aquasmart.Web.csproj", "src/apps/Aquasmart.Web/"]
-COPY ["src/orchestration/aspire/Aquasmart.ServiceDefaults/Aquasmart.ServiceDefaults.csproj", "src/orchestration/aspire/Aquasmart.ServiceDefaults/"]
-
-RUN dotnet restore "src/apps/Aquasmart.Web/Aquasmart.Web.csproj"
-
-# Copy everything and build
+# copia tudo (IMPORTANTE para projetos modulares)
 COPY . .
-WORKDIR "/src/src/apps/Aquasmart.Web"
-RUN dotnet build "Aquasmart.Web.csproj" -c Release -o /app/build
 
-# Stage 2: Publish
-FROM build AS publish
-RUN dotnet publish "Aquasmart.Web.csproj" -c Release -o /app/publish
+WORKDIR /src/src/apps/Aquasmart.Server
 
-# Stage 3: Runtime (Nginx for Blazor WASM)
-FROM nginx:alpine AS runtime
-WORKDIR /usr/share/nginx/html
+RUN dotnet restore
+RUN dotnet build -c Release -o /app/build
+RUN dotnet publish -c Release -o /app/publish
 
-# Copy published files
-COPY --from=publish /app/publish/wwwroot .
+FROM mcr.microsoft.com/dotnet/aspnet:10.0
+WORKDIR /app
 
-# Copy nginx config
-COPY src/apps/Aquasmart.Web/nginx.conf /etc/nginx/nginx.conf
+COPY --from=build /app/publish .
 
-EXPOSE 80
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD curl -f http://localhost/ || exit 1
+EXPOSE 8080
+
+ENTRYPOINT ["dotnet", "Aquasmart.Server.dll"]

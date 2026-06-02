@@ -1,6 +1,19 @@
+
 var builder = WebApplication.CreateBuilder(args);
-    builder.AddBuildPipelines();
+
+// Swagger
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
-    app.UseAppPipelines();
-    app.Run();
+
+app.UseSwagger();
+app.UseSwaggerUI();
+
+// endpoints reais do teu sistema
+app.MapEndpoints();
+
+// teste simples
+app.MapGet("/", () => "AquaSmart OK");
+
+app.Run();
