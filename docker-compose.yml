@@ -1,0 +1,29 @@
+services:
+  db:
+    image: postgres:16
+    container_name: aquasmart-db
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 1234
+      POSTGRES_DB: aquasmart
+    ports:
+      - "5433:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+  api:
+    build:
+      context: .
+      dockerfile: src/apps/Aquasmart.Server/Dockerfile
+    container_name: aquasmart-api
+    restart: always
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    environment:
+      ConnectionStrings__DefaultConnection: "Host=db;Port=5432;Database=aquasmart;Username=postgres;Password=1234"
+
+volumes:
+  db_data:

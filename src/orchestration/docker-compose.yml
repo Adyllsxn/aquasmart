@@ -1,10 +1,8 @@
-version: "3.8"
-
 services:
   aquasmart-server:
     container_name: aquasmart-server
     build:
-      context: ../..  
+      context: ../..
       dockerfile: src/apps/Aquasmart.Server/Dockerfile
     image: aquasmart/server:latest
     ports:
