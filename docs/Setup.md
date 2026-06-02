@@ -65,12 +65,31 @@ dotnet run
 
 
 ### 6. Rodar o projeto Web
+### 6.1. Configurar o base href
+> Antes de rodar, edite o arquivo src/apps/Aquasmart.Web/wwwroot/index.html:
+
+#### Para desenvolvimento local:
+```bash
+<base href="/" />
+<!-- <base href="/aquasmart/" /> -->
+```
+
+#### Para GitHub Pages:
+```bash
+<!-- <base href="/" /> -->
+<base href="/aquasmart/" />
+```
+>     ⚠️ Importante: Mantenha base href="/" para rodar localmente.
+
+### 6.2. Executar o projeto
 ```bash
 cd src/apps/Aquasmart.Web
 dotnet run
 ```
 
 ### 7. Acessar a aplicação
-> PARA API: Abra o navegador em: https://localhost:5205
+> PARA API: Abra o navegador em: http://localhost:5205 ou https://localhost:7202
 
-> PARA WEB: Abra o navegador em: https://localhost:5063
+> PARA API COM SCALAR: Abra o navegador em: http://localhost:5205/scalar/ ou https://localhost:7202/scalar/
+
+> PARA WEB: Abra o navegador em: http://localhost:5063 ou https://localhost:7058

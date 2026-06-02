@@ -3,6 +3,9 @@
 ##
 ## Get latest from `dotnet new gitignore`
 
+# Snippets (atalhos do VS Code)
+docs/javascript-snippets.md
+docs/typescript-snippets.md
 
 # VS Code
 .vscode/

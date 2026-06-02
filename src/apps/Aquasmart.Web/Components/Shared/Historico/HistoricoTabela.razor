@@ -1,96 +1,375 @@
-<div class="bg-gradient-to-br from-gray-900/80 to-gray-900/40 rounded-3xl p-5 border border-gray-700">
-    <div class="flex justify-between items-center mb-4">
-        <h3 class="font-semibold text-white flex items-center gap-2">
+@* HistoricoTabela.razor*@
+@inject HttpClient Http
+@inject IJSRuntime JSRuntime
+
+<div class="space-y-4">
+    <!-- Filtros -->
+    <div class="bg-gradient-to-br from-gray-900/80 to-gray-900/40 rounded-3xl p-5 border border-gray-700">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div>
+                <label class="text-gray-400 text-xs block mb-2">Data Início</label>
+                <input type="date" @bind="dataInicio" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white text-sm" />
+            </div>
+            <div>
+                <label class="text-gray-400 text-xs block mb-2">Data Fim</label>
+                <input type="date" @bind="dataFim" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white text-sm" />
+            </div>
+            <div>
+                <label class="text-gray-400 text-xs block mb-2">Por página</label>
+                <select @bind="itensPorPagina" class="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-white text-sm">
+                    <option value="10">10</option>
+                    <option value="25">25</option>
+                    <option value="50">50</option>
+                    <option value="100">100</option>
+                </select>
+            </div>
+        </div>
+        <div class="mt-4 flex gap-2">
+            <button @onclick="CarregarLeituras" class="bg-blue-600 hover:bg-blue-700 text-white rounded-lg px-4 py-2 text-sm transition flex items-center gap-2">
+                <i class="fa-solid fa-database"></i> Carregar Leituras
+            </button>
+            <button @onclick="CarregarAlertas" class="bg-red-600 hover:bg-red-700 text-white rounded-lg px-4 py-2 text-sm transition flex items-center gap-2">
+                <i class="fa-solid fa-exclamation-triangle"></i> Carregar Alertas
+            </button>
+            <button @onclick="ExportarCSV" class="bg-green-600 hover:bg-green-700 text-white rounded-lg px-4 py-2 text-sm transition flex items-center gap-2">
+                <i class="fa-solid fa-download"></i> Exportar CSV
+            </button>
+        </div>
+    </div>
+
+    <!-- Mensagem de erro -->
+    @if (!string.IsNullOrEmpty(erroMsg))
+    {
+        <div class="bg-red-500/20 border border-red-500 rounded-lg p-3 text-red-400 text-sm">
+            <i class="fa-solid fa-circle-exclamation mr-2"></i> @erroMsg
+        </div>
+    }
+
+    <!-- Mensagem de sucesso -->
+    @if (!string.IsNullOrEmpty(sucessoMsg))
+    {
+        <div class="bg-green-500/20 border border-green-500 rounded-lg p-3 text-green-400 text-sm">
+            <i class="fa-solid fa-circle-check mr-2"></i> @sucessoMsg
+        </div>
+    }
+
+    <!-- Tabela -->
+    <div class="bg-gradient-to-br from-gray-900/80 to-gray-900/40 rounded-3xl p-5 border border-gray-700">
+        <h3 class="font-semibold text-white flex items-center gap-2 mb-4">
             <div class="w-1 h-6 bg-blue-500 rounded-full"></div>
             <i class="fa-solid fa-table-list text-blue-500"></i>
-            Registos de Leituras
+            @tipoAtual
+            <span class="text-xs text-gray-500 ml-2">(@dadosCompletos.Count registos)</span>
         </h3>
-        <div class="flex items-center gap-2">
-            <span class="text-gray-500 text-xs">Mostrar:</span>
-            <select class="bg-gray-800 border border-gray-700 rounded-lg px-3 py-1 text-white text-xs">
-                <option>10</option>
-                <option>25</option>
-                <option>50</option>
-                <option>100</option>
-            </select>
-        </div>
-    </div>
-    <div class="overflow-x-auto">
-        <table class="w-full text-left">
-            <thead class="text-gray-500 text-xs uppercase border-b border-gray-700">
-                <tr>
-                    <th class="pb-3 font-medium px-3">Data/Hora</th>
-                    <th class="pb-3 font-medium px-3">🌡️ Temperatura</th>
-                    <th class="pb-3 font-medium px-3">🧪 pH</th>
-                    <th class="pb-3 font-medium px-3">💨 Oxigénio</th>
-                    <th class="pb-3 font-medium px-3">💧 Nível</th>
-                    <th class="pb-3 font-medium px-3">Status</th>
-                </tr>
-            </thead>
-            <tbody class="text-gray-300 text-sm divide-y divide-gray-800">
-                <tr class="hover:bg-gray-800/30 transition-colors">
-                    <td class="py-3 px-3">03/05/2026 16:20</td>
-                    <td class="py-3 px-3"><span class="text-white font-medium">28.5°C</span></td>
-                    <td class="py-3 px-3">7.2</td>
-                    <td class="py-3 px-3">6.2 mg/L</td>
-                    <td class="py-3 px-3">65%</td>
-                    <td class="py-3 px-3"><span class="text-green-400 text-xs">Normal</span></td>
-                </tr>
-                <tr class="hover:bg-gray-800/30 transition-colors">
-                    <td class="py-3 px-3">03/05/2026 15:50</td>
-                    <td class="py-3 px-3"><span class="text-white font-medium">28.1°C</span></td>
-                    <td class="py-3 px-3">7.1</td>
-                    <td class="py-3 px-3">6.5 mg/L</td>
-                    <td class="py-3 px-3">67%</td>
-                    <td class="py-3 px-3"><span class="text-green-400 text-xs">Normal</span></td>
-                </tr>
-                <tr class="hover:bg-gray-800/30 transition-colors">
-                    <td class="py-3 px-3">03/05/2026 15:20</td>
-                    <td class="py-3 px-3"><span class="text-white font-medium">29.2°C</span></td>
-                    <td class="py-3 px-3">7.3</td>
-                    <td class="py-3 px-3">5.8 mg/L</td>
-                    <td class="py-3 px-3">64%</td>
-                    <td class="py-3 px-3"><span class="text-yellow-400 text-xs">Atenção</span></td>
-                </tr>
-                <tr class="hover:bg-gray-800/30 transition-colors">
-                    <td class="py-3 px-3">03/05/2026 14:50</td>
-                    <td class="py-3 px-3"><span class="text-white font-medium">27.8°C</span></td>
-                    <td class="py-3 px-3">7.0</td>
-                    <td class="py-3 px-3">6.8 mg/L</td>
-                    <td class="py-3 px-3">68%</td>
-                    <td class="py-3 px-3"><span class="text-green-400 text-xs">Normal</span></td>
-                </tr>
-                <tr class="hover:bg-gray-800/30 transition-colors">
-                    <td class="py-3 px-3">03/05/2026 14:20</td>
-                    <td class="py-3 px-3"><span class="text-white font-medium">30.5°C</span></td>
-                    <td class="py-3 px-3">7.4</td>
-                    <td class="py-3 px-3">5.2 mg/L</td>
-                    <td class="py-3 px-3">62%</td>
-                    <td class="py-3 px-3"><span class="text-red-400 text-xs">Crítico</span></td>
-                </tr>
-                <tr class="hover:bg-gray-800/30 transition-colors">
-                    <td class="py-3 px-3">03/05/2026 13:50</td>
-                    <td class="py-3 px-3"><span class="text-white font-medium">27.5°C</span></td>
-                    <td class="py-3 px-3">6.9</td>
-                    <td class="py-3 px-3">7.0 mg/L</td>
-                    <td class="py-3 px-3">70%</td>
-                    <td class="py-3 px-3"><span class="text-green-400 text-xs">Normal</span></td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
-    
-    <!-- Paginação -->
-    <div class="flex items-center justify-between mt-4 pt-3 border-t border-gray-800">
-        <span class="text-gray-500 text-xs">Mostrando 1-6 de 1.247 registos</span>
-        <div class="flex gap-1">
-            <button class="bg-gray-800 hover:bg-gray-700 text-gray-400 rounded-lg px-3 py-1 text-xs transition-all">«</button>
-            <button class="bg-blue-600 text-white rounded-lg px-3 py-1 text-xs transition-all">1</button>
-            <button class="bg-gray-800 hover:bg-gray-700 text-gray-400 rounded-lg px-3 py-1 text-xs transition-all">2</button>
-            <button class="bg-gray-800 hover:bg-gray-700 text-gray-400 rounded-lg px-3 py-1 text-xs transition-all">3</button>
-            <button class="bg-gray-800 hover:bg-gray-700 text-gray-400 rounded-lg px-3 py-1 text-xs transition-all">4</button>
-            <button class="bg-gray-800 hover:bg-gray-700 text-gray-400 rounded-lg px-3 py-1 text-xs transition-all">5</button>
-            <button class="bg-gray-800 hover:bg-gray-700 text-gray-400 rounded-lg px-3 py-1 text-xs transition-all">»</button>
-        </div>
+
+        @if (carregando)
+        {
+            <div class="text-center py-8">
+                <i class="fa-solid fa-spinner fa-spin text-2xl text-gray-500"></i>
+                <p class="text-gray-500 mt-2">Carregando dados...</p>
+            </div>
+        }
+        else if (dadosCompletos.Count == 0)
+        {
+            <div class="text-center py-8">
+                <i class="fa-regular fa-folder-open text-2xl text-gray-500"></i>
+                <p class="text-gray-500 mt-2">Nenhum dado encontrado no período selecionado</p>
+                <p class="text-gray-600 text-xs mt-2">Selecione um período e clique em um botão acima</p>
+            </div>
+        }
+        else
+        {
+            <div class="overflow-x-auto">
+                @if (tipoAtual == "Leituras")
+                {
+                    <table class="w-full text-left">
+                        <thead class="text-gray-500 text-xs uppercase border-b border-gray-700">
+                            <tr>
+                                <th class="pb-3 font-medium px-3">Data/Hora</th>
+                                <th class="pb-3 font-medium px-3">🌡️ Temperatura</th>
+                                <th class="pb-3 font-medium px-3">🧪 pH</th>
+                                <th class="pb-3 font-medium px-3">💨 Oxigénio</th>
+                                <th class="pb-3 font-medium px-3">💧 Nível</th>
+                                <th class="pb-3 font-medium px-3">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-gray-300 text-sm divide-y divide-gray-800">
+                            @foreach (var leitura in dadosExibidosLeituras)
+                            {
+                                var status = ObterStatusLeitura(leitura);
+                                <tr class="hover:bg-gray-800/30 transition-colors">
+                                    <td class="py-3 px-3">@leitura.Timestamp.ToString("dd/MM/yyyy HH:mm")</td>
+                                    <td class="py-3 px-3">@leitura.Temperatura.ToString("F1")°C</td>
+                                    <td class="py-3 px-3">@leitura.Ph.ToString("F1")</td>
+                                    <td class="py-3 px-3">@leitura.Oxigenio.ToString("F1") mg/L</td>
+                                    <td class="py-3 px-3">@leitura.NivelAgua.ToString("F0")%</td>
+                                    <td class="py-3 px-3"><span class="text-@status.Cor-400 text-xs">@status.Texto</span></td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+                else
+                {
+                    <table class="w-full text-left">
+                        <thead class="text-gray-500 text-xs uppercase border-b border-gray-700">
+                            <tr>
+                                <th class="pb-3 font-medium px-3">Data/Hora</th>
+                                <th class="pb-3 font-medium px-3">Mensagem</th>
+                                <th class="pb-3 font-medium px-3">Tipo</th>
+                                <th class="pb-3 font-medium px-3">Gravidade</th>
+                                <th class="pb-3 font-medium px-3">Valor</th>
+                                <th class="pb-3 font-medium px-3">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-gray-300 text-sm divide-y divide-gray-800">
+                            @foreach (var alerta in dadosExibidosAlertas)
+                            {
+                                var gravidadeClass = alerta.Gravidade == 3 ? "red" : (alerta.Gravidade == 1 ? "yellow" : "green");
+                                var gravidadeTexto = alerta.Gravidade == 3 ? "Crítico" : (alerta.Gravidade == 1 ? "Atenção" : "Info");
+                                <tr class="hover:bg-gray-800/30 transition-colors">
+                                    <td class="py-3 px-3">@alerta.Timestamp.ToString("dd/MM/yyyy HH:mm")</td>
+                                    <td class="py-3 px-3">@alerta.Mensagem</td>
+                                    <td class="py-3 px-3">@ObterTipoSensor(alerta.Tipo)</td>
+                                    <td class="py-3 px-3"><span class="text-@gravidadeClass-400">@gravidadeTexto</span></td>
+                                    <td class="py-3 px-3">@alerta.ValorRegistado @ObterUnidade(alerta.Tipo)</td>
+                                    <td class="py-3 px-3">@(alerta.Lida ? "✅ Lido" : "⏳ Não lido")</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+            </div>
+
+            <!-- Paginação -->
+            <div class="flex items-center justify-between mt-4 pt-3 border-t border-gray-800">
+                <span class="text-gray-500 text-xs">
+                    Mostrando @((paginaAtual - 1) * itensPorPagina + 1) a @Math.Min(paginaAtual * itensPorPagina, dadosCompletos.Count) de @dadosCompletos.Count registos
+                </span>
+                <div class="flex gap-1">
+                    <button @onclick="PaginaAnterior" disabled="@(paginaAtual == 1)" class="bg-gray-800 hover:bg-gray-700 text-gray-400 rounded-lg px-3 py-1 text-xs transition-all disabled:opacity-50">«</button>
+                    @for (int i = 1; i <= totalPaginas && i <= 5; i++)
+                    {
+                        <button @onclick="() => IrParaPagina(i)" class="@(paginaAtual == i ? "bg-blue-600 text-white" : "bg-gray-800 hover:bg-gray-700 text-gray-400") rounded-lg px-3 py-1 text-xs transition-all">@i</button>
+                    }
+                    @if (totalPaginas > 5)
+                    {
+                        <span class="text-gray-500 px-2">...</span>
+                        <button @onclick="() => IrParaPagina(totalPaginas)" class="bg-gray-800 hover:bg-gray-700 text-gray-400 rounded-lg px-3 py-1 text-xs transition-all">@totalPaginas</button>
+                    }
+                    <button @onclick="ProximaPagina" disabled="@(paginaAtual == totalPaginas)" class="bg-gray-800 hover:bg-gray-700 text-gray-400 rounded-lg px-3 py-1 text-xs transition-all disabled:opacity-50">»</button>
+                </div>
+            </div>
+        }
     </div>
 </div>
+
+@code {
+    private List<Leitura> dadosCompletosLeituras = new();
+    private List<Leitura> dadosExibidosLeituras = new();
+    private List<AlertaDto> dadosCompletosAlertas = new();
+    private List<AlertaDto> dadosExibidosAlertas = new();
+    private List<object> dadosCompletos = new();
+    private string tipoAtual = "";
+    private bool carregando = false;
+    private string erroMsg = "";
+    private string sucessoMsg = "";
+    private int paginaAtual = 1;
+    private int itensPorPagina = 10;
+    private int totalPaginas => (int)Math.Ceiling((double)dadosCompletos.Count / itensPorPagina);
+    
+    private DateTime dataInicio = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
+    private DateTime dataFim = DateTime.Now;
+
+    private async Task CarregarLeituras()
+    {
+        carregando = true;
+        tipoAtual = "Leituras";
+        erroMsg = "";
+        sucessoMsg = "Carregando leituras...";
+        StateHasChanged();
+        
+        try
+        {
+            var response = await Http.GetAsync("/api/leituras");
+            if (response.IsSuccessStatusCode)
+            {
+                var todasLeituras = await response.Content.ReadFromJsonAsync<List<Leitura>>() ?? new();
+                dadosCompletosLeituras = todasLeituras
+                    .Where(l => l.Timestamp.Date >= dataInicio.Date && l.Timestamp.Date <= dataFim.Date)
+                    .OrderByDescending(l => l.Timestamp)
+                    .ToList();
+                
+                dadosCompletos = dadosCompletosLeituras.Cast<object>().ToList();
+                sucessoMsg = $"✅ {dadosCompletosLeituras.Count} leituras carregadas!";
+            }
+            else
+            {
+                erroMsg = $"Erro HTTP: {response.StatusCode}";
+            }
+        }
+        catch (Exception ex)
+        {
+            erroMsg = $"Erro: {ex.Message}";
+            dadosCompletos = new();
+        }
+        
+        paginaAtual = 1;
+        AtualizarPaginacao();
+        carregando = false;
+        StateHasChanged();
+        
+        await Task.Delay(3000);
+        sucessoMsg = "";
+        StateHasChanged();
+    }
+
+    private async Task CarregarAlertas()
+    {
+        carregando = true;
+        tipoAtual = "Alertas";
+        erroMsg = "";
+        sucessoMsg = "Carregando alertas...";
+        StateHasChanged();
+        
+        try
+        {
+            var response = await Http.GetAsync("/api/alertas");
+            if (response.IsSuccessStatusCode)
+            {
+                var todosAlertas = await response.Content.ReadFromJsonAsync<List<AlertaDto>>() ?? new();
+                dadosCompletosAlertas = todosAlertas
+                    .Where(a => a.Timestamp.Date >= dataInicio.Date && a.Timestamp.Date <= dataFim.Date)
+                    .OrderByDescending(a => a.Timestamp)
+                    .ToList();
+                
+                dadosCompletos = dadosCompletosAlertas.Cast<object>().ToList();
+                sucessoMsg = $"✅ {dadosCompletosAlertas.Count} alertas carregados!";
+            }
+            else
+            {
+                erroMsg = $"Erro HTTP: {response.StatusCode}";
+            }
+        }
+        catch (Exception ex)
+        {
+            erroMsg = $"Erro: {ex.Message}";
+            dadosCompletos = new();
+        }
+        
+        paginaAtual = 1;
+        AtualizarPaginacao();
+        carregando = false;
+        StateHasChanged();
+        
+        await Task.Delay(3000);
+        sucessoMsg = "";
+        StateHasChanged();
+    }
+
+    private void AtualizarPaginacao()
+    {
+        if (tipoAtual == "Leituras")
+        {
+            dadosExibidosLeituras = dadosCompletosLeituras
+                .Skip((paginaAtual - 1) * itensPorPagina)
+                .Take(itensPorPagina)
+                .ToList();
+        }
+        else if (tipoAtual == "Alertas")
+        {
+            dadosExibidosAlertas = dadosCompletosAlertas
+                .Skip((paginaAtual - 1) * itensPorPagina)
+                .Take(itensPorPagina)
+                .ToList();
+        }
+    }
+
+    private void PaginaAnterior()
+    {
+        if (paginaAtual > 1)
+        {
+            paginaAtual--;
+            AtualizarPaginacao();
+            StateHasChanged();
+        }
+    }
+
+    private void ProximaPagina()
+    {
+        if (paginaAtual < totalPaginas)
+        {
+            paginaAtual++;
+            AtualizarPaginacao();
+            StateHasChanged();
+        }
+    }
+
+    private void IrParaPagina(int pagina)
+    {
+        paginaAtual = pagina;
+        AtualizarPaginacao();
+        StateHasChanged();
+    }
+
+    private async Task ExportarCSV()
+    {
+        if (dadosCompletos.Count == 0) return;
+        
+        var sb = new StringBuilder();
+        
+        if (tipoAtual == "Leituras")
+        {
+            sb.AppendLine("Data/Hora,Temperatura (°C),pH,Oxigénio (mg/L),Nível (%),Status");
+            foreach (Leitura l in dadosCompletosLeituras)
+            {
+                var status = ObterStatusLeitura(l);
+                sb.AppendLine($"{l.Timestamp:dd/MM/yyyy HH:mm},{l.Temperatura:F1},{l.Ph:F1},{l.Oxigenio:F1},{l.NivelAgua:F0},{status.Texto}");
+            }
+        }
+        else
+        {
+            sb.AppendLine("Data/Hora,Mensagem,Tipo,Gravidade,Valor,Status");
+            foreach (AlertaDto a in dadosCompletosAlertas)
+            {
+                var gravidadeTexto = a.Gravidade == 3 ? "Crítico" : (a.Gravidade == 1 ? "Atenção" : "Info");
+                sb.AppendLine($"{a.Timestamp:dd/MM/yyyy HH:mm},{a.Mensagem},{ObterTipoSensor(a.Tipo)},{gravidadeTexto},{a.ValorRegistado},{(a.Lida ? "Lido" : "Não lido")}");
+            }
+        }
+        
+        var bytes = Encoding.UTF8.GetBytes(sb.ToString());
+        var fileName = $"historico_{tipoAtual}_{DateTime.Now:yyyyMMdd_HHmmss}.csv";
+        await JSRuntime.InvokeVoidAsync("saveAsFile", fileName, Convert.ToBase64String(bytes));
+        
+        sucessoMsg = $"✅ Exportado {dadosCompletos.Count} registos!";
+        StateHasChanged();
+        await Task.Delay(3000);
+        sucessoMsg = "";
+        StateHasChanged();
+    }
+
+    private (string Cor, string Texto) ObterStatusLeitura(Leitura l)
+    {
+        if (l.Temperatura > 28 || l.Oxigenio < 5 || l.NivelAgua < 30 || l.Ph < 6.5 || l.Ph > 8.5)
+            return ("red", "Crítico");
+        if (l.Temperatura > 26 || l.Oxigenio < 6 || l.NivelAgua < 40)
+            return ("yellow", "Atenção");
+        return ("green", "Normal");
+    }
+
+    private string ObterTipoSensor(int tipo) => tipo switch
+    {
+        0 => "Temperatura",
+        1 => "pH",
+        2 => "Oxigénio",
+        3 => "Nível",
+        _ => "Desconhecido"
+    };
+
+    private string ObterUnidade(int tipo) => tipo switch
+    {
+        0 => "°C",
+        2 => "mg/L",
+        _ => ""
+    };
+}
