@@ -30,7 +30,7 @@ Edite o arquivo src/apps/Aquasmart.Server/appsettings.Development.json:
 ```bash
 {
   "ConnectionStrings": {
-    "postgres": "Host=localhost;Port=5432;Database=db_aquasmart;Username=seu_usuario;Password=sua_senha"
+    "postgres": "Host=localhost;Port=5432;Database=db_aquasmart;Username=SEU_USER_AQUI;Password=SEU_PASSWORD_AQUI"
   }
 }
 ```
@@ -44,7 +44,7 @@ services:
   postgres:
     image: postgres:16
     environment:
-      POSTGRES_USER: postgres
+      POSTGRES_USER: SEU_USER_AQUI
       POSTGRES_PASSWORD: SEU_PASSWORD_AQUI
       POSTGRES_DB: db_aquasmart
 ```
