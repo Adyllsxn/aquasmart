@@ -1,4 +1,21 @@
 services:
+  # ✅ DATABASE
+  postgres:
+    image: postgres:16
+    container_name: aquasmart-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ADYLLSXNPOSTGRES
+      POSTGRES_DB: db_aquasmart
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+    networks:
+      - aquasmart-network
+
+  # ✅ SERVER
   aquasmart-server:
     container_name: aquasmart-server
     build:
@@ -7,13 +24,13 @@ services:
     image: aquasmart/server:latest
     ports:
       - "5047:8080"
-    environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-      - ASPNETCORE_URLS=http://+:8080
+    depends_on:
+      - postgres
     restart: unless-stopped
     networks:
       - aquasmart-network
 
+  # ✅ WEB
   aquasmart-web:
     container_name: aquasmart-web
     build:
@@ -27,6 +44,9 @@ services:
     restart: unless-stopped
     networks:
       - aquasmart-network
+
+volumes:
+  postgres_data:
 
 networks:
   aquasmart-network:
