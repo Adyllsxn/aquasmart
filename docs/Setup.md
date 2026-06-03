@@ -22,8 +22,9 @@
 git clone https://github.com/Adyllsxn/aquasmart.git
 cd aquasmart
 ```
+### 2. Configurar
 
-### 2. Configurar a connection string
+#### 2.1 Configurar a connection string
 
 Edite o arquivo src/apps/Aquasmart.Server/appsettings.Development.json:
 ```bash
@@ -34,6 +35,32 @@ Edite o arquivo src/apps/Aquasmart.Server/appsettings.Development.json:
 }
 ```
 > ⚠️ Importante: Substitua seu_usuario e sua_senha pelas suas credenciais do PostgreSQL.
+
+#### 2.2 docker-compose
+Edite o arquivo `docker-compose.yml` em `src/orchestration/`:
+
+```yaml
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: SEU_PASSWORD_AQUI
+      POSTGRES_DB: db_aquasmart
+```
+> ⚠️ A senha do PostgreSQL no Docker deve ser a mesma do appsettings.Development.json
+
+##### 2.2.1 Rodar:
+```bash
+cd src/orchestration
+chmod +x docker-start.sh
+./docker-start.sh
+```
+
+##### 2.2.2 Acessar 
+- Web:	http://localhost:5048
+- API:	http://localhost:5047
+- Banco:	localhost:5432
 
 ### 3. Criar o banco de dados
 
