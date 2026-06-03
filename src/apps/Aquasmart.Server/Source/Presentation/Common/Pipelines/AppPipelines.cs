@@ -9,5 +9,6 @@ public static class AppPipelines
         app.UseUiDocExtensions(); 
         app.MapEndpoints();
         app.UseSignalRExtensions();
+        app.Run();
     }
 }
